@@ -1,0 +1,55 @@
+
+.outer-container {
+    max-width: 90%;
+    margin: 0 auto;
+    padding: 20px;
+    border-radius: 8px;
+  }
+
+.title{
+    margin-top: 30px;
+    margin-bottom: 40px;
+}
+  
+.cal-container {
+    width: 100%;
+    margin: 0 auto;
+    background-color: #ffffff;
+    border-radius: 8px;
+    padding: 30px;
+
+  }
+
+.form-container {
+    width: 100%;
+    margin: 0 auto;
+    background-color: #ffffff;
+    border-radius: 8px;
+    border-color: black;
+    padding: 30px;
+  }
+
+  .centered-button {
+    margin-top: 20px;
+    background-color: #5045e5; /* Default background color */
+    color: #fff; /* Text color */
+    border: none; /* Remove default border */
+    display: block;
+    margin-left: auto;
+    margin-right: auto;
+    width: 100px; /* Adjust width as needed */
+    transition: background-color 0.3s ease; /* Smooth transition for color change */
+  }
+  
+  .centered-button:hover {
+    background-color: #4033c2; /* Color when hovered */
+  }
+
+  .custom-placeholder::placeholder {
+    color: rgb(179, 177, 177);
+  }
+
+  .rounded-table th, 
+  .rounded-table td {
+    color: black !important; 
+  }

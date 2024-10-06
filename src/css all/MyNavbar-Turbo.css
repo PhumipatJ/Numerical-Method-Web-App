@@ -1,0 +1,48 @@
+.bg-body-tertiary {
+    background-color: #ffffff !important;
+    box-shadow: 0 4px 8px rgba(206, 206, 206, 0.2);
+  }
+  
+  body {
+    background-color: #f3f4f6;
+  }
+  
+  /* Default color for Nav.Link */
+  .nav-link-custom {
+    color: #6b7280;  /* Initial color */
+  }
+  .nav-link-custom:hover {
+    color: #1c1c1c;  /* Hover color */
+  }
+  
+  
+  /* Change the color of the dropdown title */
+  .navbar-nav .dropdown-toggle {
+    color: #6b7280;  /* Initial color */
+  }
+  .navbar-nav .dropdown-toggle:hover {
+    color: #1c1c1c;  /* Hover color */
+  }
+  
+  
+  /* Change the color of the dropdown items */
+  .navbar-nav .dropdown-menu .dropdown-item {
+    color: #6b7280; /* Initial color */
+  }
+  .navbar-nav .dropdown-menu .dropdown-item:hover {
+    color: #1c1c1c; /* Hover color */
+  }
+  
+  .navbar-nav .dropdown {
+    margin-left: 40px;  /* Adjust this for the left margin */
+    margin-right: 10px; /* Adjust this for the right margin */
+  }
+  
+  .navbar-nav .dropdown:last-child {
+    margin-right: 0;  /* Remove right margin for the last dropdown */
+  }
+
+.dropdown-title{
+  font-weight: 500;
+}
+  

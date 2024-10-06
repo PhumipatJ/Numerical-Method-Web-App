@@ -1,0 +1,57 @@
+
+.container {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr); /* 3 equal columns */
+    grid-template-rows: repeat(2, auto); /* 2 rows, height based on content */
+    gap: 50px; /* Space between grid items */
+    padding: 24px; /* Space around the container */
+  }
+  
+  .item {
+    background-color: #ffffff; /* Background color */
+    border-radius: 8px; /* Rounded corners */
+    padding: 10px; /* Padding inside the card */
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Optional: shadow for a subtle effect */
+    text-align: center; /* Center text inside the card */
+  }
+
+h1{
+    text-align: center;
+    margin-top: 50px;
+}
+
+.link{
+    color: #5045e5;
+    text-decoration: none;
+    font-weight: 500;
+    font-size: 16px;
+    
+}
+
+.link:hover{
+    color: #2d25aa;
+    text-decoration: none;
+    font-weight: 500;
+    font-size: 16px;
+    
+}
+
+.topic{
+    margin-bottom: 10px;
+    font-size: 22px;
+}
+
+.item p {
+    margin-bottom: 0px; /* Space below each paragraph */
+  }
+  
+  /* Decrease space below the last paragraph */
+  .item p:last-of-type {
+    margin-bottom: 8px; /* Smaller space below the last paragraph */
+  }
+  
+  /* Decrease space above the first paragraph */
+  .item p:first-of-type {
+    margin-top: 8px; /* Smaller space above the first paragraph */
+  }
+  

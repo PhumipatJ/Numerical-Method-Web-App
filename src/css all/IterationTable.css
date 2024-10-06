@@ -1,0 +1,24 @@
+/* IterationTable.css */
+
+.rounded-table {
+    border-collapse: separate;
+    border-spacing: 0;
+    border-radius: 10px;
+    overflow: hidden;
+  }
+  
+  .rounded-table thead th {
+    text-align: center;
+    background-color: #dbeafe;
+    border-bottom: 1px solid #b0bdf0; 
+  }
+  
+  .rounded-table tbody td {
+    background-color: #eff6ff; 
+    color: #d4e1ec;
+  }
+  
+  .rounded-table th,
+  .rounded-table td {
+    padding: 8px;
+  }
