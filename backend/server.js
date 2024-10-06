@@ -1,11 +1,12 @@
 const express = require('express');
 const swaggerUi = require('swagger-ui-express');
 const swaggerJsdoc = require('swagger-jsdoc');
-const pg = require('pg');
+const { Client } = require('pg');
 const cors = require('cors');
+require('dotenv').config(); // Make sure to load environment variables
 
 const app = express();
-const port = 5000;
+const port = process.env.PORT || 5000; // Use environment port or fallback to 5000
 
 app.use(cors()); // Enable CORS for all routes
 
@@ -16,13 +17,13 @@ const swaggerOptions = {
     info: {
       title: 'Equation API',
       version: '1.0.0',
-      description: 'API for get equation'
+      description: 'API for getting equations',
     },
     servers: [
       {
-        url: `http://localhost:${port}`,
-        description: 'Local server'
-      }
+        url: process.env.SWAGGER_URL || `http://localhost:${port}`, // Use the environment variable for production
+        description: 'API server',
+      },
     ],
   },
   apis: ['./server.js'], // Path to the API docs
@@ -31,71 +32,35 @@ const swaggerOptions = {
 const swaggerDocs = swaggerJsdoc(swaggerOptions);
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocs));
 
-
-const db = new pg.Client({
-  user: "postgres",
-  host: "localhost",
-  database: "Numerical Method",
-  password: "Turbo33628!0802225400",
-  port: 5432,
+// Database connection using environment variables
+const db = new Client({
+  user: process.env.DB_USER || "postgres",
+  host: process.env.DB_HOST || "localhost",
+  database: process.env.DB_NAME || "Numerical Method",
+  password: process.env.DB_PASSWORD || "Turbo33628!0802225400",
+  port: 5432, // Default PostgreSQL port
 });
 
 db.connect();
 
+// Array to hold equations
 let rootOfEquationData = [];
-db.query("SELECT * FROM root_of_equation_data", (err, res) => {
+
+// Fetch equations data
+db.query('SELECT * FROM root_of_equation_data', (err, res) => {
   if (err) {
-    console.error("Error executing query", err.stack);
+    console.error('Error executing query', err.stack);
   } else {
     rootOfEquationData = res.rows;
   }
-  db.end();
 });
 
 // Parse JSON requests
 app.use(express.json());
 
-// 1. GET Root of Rquation Data
+// 1. GET Root of Equation Data
 /**
  * @swagger
- * components:
- *   schemas:
- *     Equation:
- *       type: object
- *       properties:
- *         id:
- *           type: integer
- *           example: 1
- *         data_id:
- *           type: integer
- *           example: 1
- *         fx:
- *           type: string
- *           example: "x^3 - 6x^2 + 4x + 12"
- *         xl:
- *           type: number
- *           format: double
- *           example: 1.0000000000
- *         xr:
- *           type: number
- *           format: double
- *           example: 5.0000000000
- *         initial_x:
- *           type: number
- *           format: double
- *           nullable: true
- *           example: null
- *         initial_first_x:
- *           type: number
- *           format: double
- *           nullable: true
- *           example: null
- *         initial_second_x:
- *           type: number
- *           format: double
- *           nullable: true
- *           example: null
- *
  * /rootOfEquationData:
  *   get:
  *     summary: Retrieve all equations
@@ -107,85 +72,59 @@ app.use(express.json());
  *             schema:
  *               type: array
  *               items:
- *                 $ref: '#/components/schemas/Equation'
+ *                 type: object
+ *                 properties:
+ *                   id:
+ *                     type: integer
+ *                   data_id:
+ *                     type: integer
+ *                   fx:
+ *                     type: string
+ *                   xl:
+ *                     type: number
+ *                   xr:
+ *                     type: number
+ *                   initial_x:
+ *                     type: number
+ *                     nullable: true
+ *                   initial_first_x:
+ *                     type: number
+ *                     nullable: true
+ *                   initial_second_x:
+ *                     type: number
+ *                     nullable: true
  */
-app.get("/rootOfEquationData", (req, res) => {
-  //const randomIndex = Math.floor(Math.random() * rootOfEquationData.length);
+app.get('/rootOfEquationData', (req, res) => {
   res.json(rootOfEquationData);
 });
 
 // 2. GET Root of Equation Data with filtering
 /**
  * @swagger
- * components:
- *   schemas:
- *     Equation:
- *       type: object
- *       properties:
- *         id:
- *           type: integer
- *           example: 1
- *         data_id:
- *           type: integer
- *           example: 1
- *         fx:
- *           type: string
- *           example: "x^3 - 6x^2 + 4x + 12"
- *         xl:
- *           type: number
- *           format: double
- *           example: 1.0000000000
- *         xr:
- *           type: number
- *           format: double
- *           example: 5.0000000000
- *         initial_x:
- *           type: number
- *           format: double
- *           nullable: true
- *           example: null
- *         initial_first_x:
- *           type: number
- *           format: double
- *           nullable: true
- *           example: null
- *         initial_second_x:
- *           type: number
- *           format: double
- *           nullable: true
- *           example: null
- *
  * /rootOfEquationData/filter:
  *   get:
- *     summary: Retrieve one randomly equations filtered by data_id
+ *     summary: Retrieve one randomly filtered equation by data_id
  *     parameters:
  *       - name: data_id
  *         in: query
  *         required: true
  *         schema:
  *           type: integer
- *           example: 1
  *     responses:
  *       200:
- *         description: A list of equations
- *         content:
- *           application/json:
- *             schema:
- *               type: array
- *               items:
- *                 $ref: '#/components/schemas/Equation'
+ *         description: A filtered equation
+ *       400:
+ *         description: Invalid data_id
  */
-app.get("/rootOfEquationData/filter", (req, res) => {
-  const dataId = parseInt(req.query.data_id); 
+app.get('/rootOfEquationData/filter', (req, res) => {
+  const dataId = parseInt(req.query.data_id);
   if (isNaN(dataId)) {
-    return res.status(400).json({ error: "Invalid data_id" });
+    return res.status(400).json({ error: 'Invalid data_id' });
   }
   const filteredData = rootOfEquationData.filter(equation => equation.data_id === dataId);
   const randomIndex = Math.floor(Math.random() * filteredData.length);
   res.json(filteredData[randomIndex]);
 });
-
-
 
 // Start server
 app.listen(port, () => {
