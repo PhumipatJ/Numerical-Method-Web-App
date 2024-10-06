@@ -259,7 +259,7 @@ const printSolution = () => {
                                             />
                                         </Form.Group>
                                         <div>{inputTable(point)}</div>
-                                        <p style={{textAlign:"center"}}>Please select at least 2 ponts</p>
+                                        <p style={{textAlign:"center"}}>Please input at least 2 points</p>
                                     </Modal.Body>
                                     <Modal.Footer>
                                         <Button variant="danger" onClick={clearInputs}>

@@ -44,7 +44,6 @@ function Home() {
         <p><Link to="/linear-regression" className="link">Linear Regression</Link></p>
         <p><Link to="/multiple-linear-regression" className="link">Multiple Linear Regression</Link></p>
         <p><Link to="/polynomial-regression" className="link">Polynomial Regression</Link></p>
-        <p><Link to="/multiple-polynomial-regression" className="link">Multiple Polynomial Regression</Link></p>
       </div>
       <div className="item">
         <h3 className="topic">Integration</h3>

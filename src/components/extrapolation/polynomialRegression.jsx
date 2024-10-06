@@ -12,15 +12,14 @@ import katex from 'katex';
 import { lusolve } from 'mathjs';
 
 
-const MultipleLinearRegression = () => {
-    const [findX, setFindX] = useState([0]); 
-    const [K, setK] = useState(2); // numbers of k
+const PolynomialRegression = () => {
+    const [findX, setFindX] = useState(4.5); 
+    const [order, setOrder] = useState(2); 
     const [point, setPoint] = useState(5); 
     const [X, setX] = useState([]); 
     const [fx, setFx] = useState([]);
     const [result, setResult] = useState(null);
-    const [slope, setSlope] = useState();
-    const [intercept, setIntercept] = useState();
+    const [coefficient, setCoefficient] = useState([]);
     const [regressionFunction, setRegressionFunction] = useState(""); 
     const [regressionFunctionSubstitude, setRegressionFunctionSubstitude] = useState(""); 
     const [matrixEquation, setMatrixEquation] = useState(""); 
@@ -36,86 +35,64 @@ const MultipleLinearRegression = () => {
         setFx([]); 
     };
 
-    const handleKChange = (event) => {
-        const newK = parseInt(event.target.value) || 1;
-        setK(newK);
-
-        let newFindX = [...findX];
-        if (newK > newFindX.length) {
-            newFindX = [...newFindX, ...Array(newK - newFindX.length).fill(0)];
-        } else {
-            newFindX = newFindX.slice(0, newK);
-        }
-        setFindX(newFindX);
-        setX(Array(newK).fill(0));  
+    const handleOrderChange = (event) => {
+        const newOrder = parseInt(event.target.value) || 1;
+        setOrder(newOrder);
     };
 
-    const handleFindXChange = (index, event) => {
-        let newFindX = [...findX];
-        newFindX[index] = parseFloat(event.target.value) || 0;
-        setFindX(newFindX);
-    };
+    
+    const inputTable = (point) => {
+        const handleXChange = (index, event) => {
+            let newX = [...X];
+            //newX[index] = event.target.value === "" ? 0 : Number(event.target.value);
+            newX[index] = parseFloat(event.target.value) || 0;
+            setX(newX);
+        };
 
+        const handleFxChange = (index, event) => {
+            let newFx = [...fx];
+            newFx[index] = parseFloat(event.target.value) || 0;
+            setFx(newFx);
+        };
 
-const inputTable = (point) => {
-    const handleXChange = (pointIndex, xIndex, event) => {
-        let newX = [...X];
-        if (!newX[pointIndex]) newX[pointIndex] = Array(K).fill(0);
-        newX[pointIndex][xIndex] = parseFloat(event.target.value) || 0; 
-        setX(newX);
-    };
-
-    const handleFxChange = (index, event) => {
-        let newFx = [...fx];
-        newFx[index] = parseFloat(event.target.value) || 0; 
-        setFx(newFx);
-    };
-
-    return (
-        <Table className="rounded-table">
-            <thead>
-                <tr>
-                    <th>Point</th>
-                    {[...Array(K)].map((_, xIndex) => (
-                        <th key={xIndex}>x{xIndex + 1}</th>
-                    ))}
-                    <th>f(x)</th>
-                </tr>
-            </thead>
-            <tbody style={{ textAlign: "center" }}>
-                {[...Array(parseInt(point)).keys()].map((i) => (
-                    <tr key={i}>
-                        <td>{i + 1}</td>
-                        
-                        {[...Array(K)].map((_, xIndex) => (
-                            <td key={xIndex}>
+        return (
+            <Table className="rounded-table">
+                <thead>
+                    <tr>
+                        <th>Point</th>
+                        <th>x</th>
+                        <th>f(x)</th>
+                    </tr>
+                </thead>
+                <tbody style={{ textAlign: "center" }}>
+                    {[...Array(parseInt(point)).keys()].map((i) => (
+                        <tr key={i}>
+                            <td>{i + 1}</td>
+                            <td>
                                 <Form.Control
                                     type="number"
                                     placeholder={`0`}
-                                    value={X[i]?.[xIndex] || ""} // Access the specific x value
-                                    onChange={(event) => handleXChange(i, xIndex, event)}
+                                    value={X[i] || ""}
+                                    onChange={(event) => handleXChange(i, event)}
                                 />
                             </td>
-                        ))}
-                        <td>
-                            <Form.Control
-                                type="number"
-                                placeholder={`0`}
-                                value={fx[i] || ""}
-                                onChange={(event) => handleFxChange(i, event)}
-                            />
-                        </td>
-                    </tr>
-                ))}
-            </tbody>
-        </Table>
-    );
-};
-
+                            <td>
+                                <Form.Control
+                                    type="number"
+                                    placeholder={`0`}
+                                    value={fx[i] || ""}
+                                    onChange={(event) => handleFxChange(i, event)}
+                                />
+                            </td>
+                        </tr>
+                    ))}
+                </tbody>
+            </Table>
+        );
+    };
     
     
 const solveAnswer = () => {
-    console.log(X);
     console.log(fx);
     if (X.length < 2 || fx.length < 2) {
         alert("Please enter at least two points.");
@@ -126,62 +103,57 @@ const solveAnswer = () => {
     let matrixSubstitudeLatex = "";
 
     const n = X.length;
-    let A = Array.from({ length: K + 1 }, () => Array(K + 1).fill(0));
-    let B = Array(K + 1).fill(0);
 
-
-    A[0][0] = n;
+    let A = Array.from({ length: order + 1 }, () => Array(order + 1).fill(0));
+    let B = Array(order + 1).fill(0);
+ 
     for (let i = 0; i < n; i++) {
-        let yi = fx[i];
-        B[0] += yi;  // ∑yi
+        let xi = X[i];  
+        let yi = fx[i]; 
+        B[0] += yi; 
+        
+        for (let j = 1; j <= order; j++) {
+            B[j] += Math.pow(xi, j) * yi;  
+        }
 
-        for (let j = 0; j < K; j++) { 
-            let xji = X[i][j]; // x vertical
-
-            A[0][j + 1] += xji;     // first row
-            A[j + 1][0] += xji;     // first col
-            B[j + 1] += xji * yi;   // ∑ xi*yi
-
-            // matrix body
-            for (let l = 0; l < K; l++) {
-                let xli = X[i][l];  // x horizontal
-                A[j + 1][l + 1] += xji * xli;  // ∑ xji*xli
+        for (let j = 0; j <= order; j++) {
+            for (let l = 0; l <= order; l++) {
+                A[j][l] += Math.pow(xi, j + l);  
             }
         }
     }
-    console.log("A "+ A);
-    console.log("B "+ B);
-    const resultA = lusolve(A, B);
-    //console.log(resultA);
-    
-    let slopes = resultA.slice(1).map(Number);
-    let intercept = Number(resultA[0]);
-    console.log("slope ai "+slopes);
-    console.log("intercept a0 "+intercept);
 
-    let calculatedResult = intercept;
-    for (let j = 0; j < K; j++) {
-        calculatedResult += slopes[j] * findX[j];
+    console.log("Matrix A:", A);
+    console.log("Matrix B:", B);
+    const resultA = lusolve(A, B);  
+
+    let coefficients = resultA.map(Number); 
+    console.log("Polynomial coefficients:", coefficients);
+
+    let calculatedResult = coefficients[0]; 
+    for (let j = 1; j <= order; j++) {
+        calculatedResult += coefficients[j] * Math.pow(findX, j);  
     }
-    //console.log(calculatedResult);
-    
+    console.log("Predicted result:", calculatedResult);
 
-   equationLatex += `From \\ f(x) = a_0 + \\sum_{i=1}^{k} a_i x_i \\ \\\\ when \\ a_0 \\ is \\ y-intercept \\ \\\\ and \\ a_i \\ is \\ slope`;
 
-   // Matrix no substitude
-   
+
+    equationLatex += `From \\ f(x) = a_0 + a_1x + a_2x^2 + ... + a_mx^m `;
+    // Matrix no substitude
    // Matrix A
-   // First row
-   matrixLatex += `\\begin{bmatrix} n`;
-   for (let j = 1; j < K+1; j++) {
-        matrixLatex += ` & \\sum_{i=1}^{n} x_{${j}i}`;
-   }
-    matrixLatex += `\\\\`;
+    matrixLatex += `\\begin{bmatrix} n`;
+    for (let j = 1; j < order + 1; j++) {
+        matrixLatex += ` & \\sum_{i=1}^{n} x_i`;
+        if (j > 1) matrixLatex += `^${j}`;
+    }
+    matrixLatex += ` \\\\`;
+
     // Remaining rows
-    for (let j = 1; j < K+1; j++) {
-        matrixLatex += `\\sum_{i=1}^{n} x_{${j}i}`;
-        for (let l = 1; l < K+1; l++) {
-            matrixLatex += ` & \\sum_{i=1}^{n} x_{${j}i} x_{${l}i}`;
+    for (let j = 1; j < order + 1; j++) {
+        matrixLatex += `\\sum_{i=1}^{n} x_i`;
+        if (j > 1) matrixLatex += `^${j}`;
+        for (let l = 1; l < order + 1; l++) {
+            matrixLatex += ` & \\sum_{i=1}^{n} x_i^${j + l}`;
         }
         matrixLatex += ` \\\\`;
     }
@@ -189,65 +161,70 @@ const solveAnswer = () => {
 
     // Matrix X
     matrixLatex += `\\begin{bmatrix}`;
-    for (let j = 0; j < K+1; j++) {
-        matrixLatex += ` a{${j}} \\\\`;
+    for (let j = 0; j < order + 1; j++) {
+        matrixLatex += ` a_${j} \\\\`;
     }
     matrixLatex += `\\end{bmatrix}=`;
 
     // Matrix B
     matrixLatex += `\\begin{bmatrix}`;
-    for (let j = 0; j < K+1; j++) {
+    for (let j = 0; j < order + 1; j++) {
         if(j === 0){
-            matrixLatex += `\\sum_{i=1}^{n} `;
+            matrixLatex += `\\sum_{i=1}^{n} y_i \\\\`;
+        }
+        else if(j === 1){
+            matrixLatex += `\\sum_{i=1}^{n} x_iy_i \\\\`;
         }
         else{
-            matrixLatex += `\\sum_{i=1}^{n} x_{${j}i}`;
+            matrixLatex += `\\sum_{i=1}^{n} x_i^${j} y_i \\\\`;
         }
-        matrixLatex += ` y_{i} \\\\`;
     }
     matrixLatex += `\\end{bmatrix}`;
 
 
+     // Substitute Matrix LaTeX
+     let index = 0;
 
-    //console.log(A[0]);
-    // Substitute Matrix LaTeX
-    let index = 0;
+     // Start the LaTeX matrix
+     matrixSubstitudeLatex += `\\begin{bmatrix}`;
+ 
+     // Loop to create the matrix rows and columns
+     for (let j = 0; j < order + 1; j++) {
+         for (let m = 0; m < order + 1; m++) {
+             matrixSubstitudeLatex += `${A[j][m]}`;
+             index++;
+ 
+             // Add an "&" separator if not the last element of the row
+             if (m < order) {
+              matrixSubstitudeLatex += ` & `;
+             }
+         }
+         matrixSubstitudeLatex += `\\\\`;
+     }
+     matrixSubstitudeLatex += `\\end{bmatrix}`;
+ 
+ 
+     // Matrix X
+     matrixSubstitudeLatex += `\\begin{bmatrix}`;
+     for (let j = 0; j < order+1; j++) {
+         matrixSubstitudeLatex += ` a_{${j}} \\\\`;
+     }
+     matrixSubstitudeLatex += `\\end{bmatrix}=`;
+ 
+     // Matrix B
+     matrixSubstitudeLatex += `\\begin{bmatrix}`;
+     for (let j = 0; j < order+1; j++) {
+         matrixSubstitudeLatex += `${B[j]} \\\\ `;
+     }
+     matrixSubstitudeLatex += `\\end{bmatrix}`;
 
-    // Start the LaTeX matrix
-    matrixSubstitudeLatex += `\\begin{bmatrix}`;
 
-    // Loop to create the matrix rows and columns
-    for (let j = 0; j < K + 1; j++) {
-        for (let m = 0; m < K + 1; m++) {
-            matrixSubstitudeLatex += `${A[j][m]}`;
-            index++;
 
-            // Add an "&" separator if not the last element of the row
-            if (m < K) {
-             matrixSubstitudeLatex += ` & `;
-            }
-        }
-        matrixSubstitudeLatex += `\\\\`;
+    let functionLatex = `f(x) = ${coefficients[0]}`;  
+    for (let i = 1; i < order+1; i++) {
+        functionLatex += ` + (${coefficients[i]})x^{${i}}`;
     }
-    matrixSubstitudeLatex += `\\end{bmatrix}`;
 
-
-    // Matrix X
-    matrixSubstitudeLatex += `\\begin{bmatrix}`;
-    for (let j = 0; j < K+1; j++) {
-        matrixSubstitudeLatex += ` a_{${j}} \\\\`;
-    }
-    matrixSubstitudeLatex += `\\end{bmatrix}=`;
-
-    // Matrix B
-    matrixSubstitudeLatex += `\\begin{bmatrix}`;
-    for (let j = 0; j < K+1; j++) {
-        matrixSubstitudeLatex += `${B[j]} \\\\ `;
-    }
-    matrixSubstitudeLatex += `\\end{bmatrix}`;
-
-
-   let functionLatex = `f(${Array.from({ length: K }, (_, idx) => `x_{${idx + 1}}`).join(', ')}) = ${intercept} + ` + slopes.map((slope, idx) => `(${slope})x_${idx + 1}`).join(' + ');
 
     const renderedFunction = katex.renderToString(functionLatex, {
         throwOnError: false,
@@ -269,8 +246,8 @@ const solveAnswer = () => {
     setMatrixSubstitude(renderedMatrixSubstitude);
     setRegressionFunction(renderedEquation);
     setMatrixEquation(renderedMatrix);
-    setSlope(slope);
-    setIntercept(intercept);
+    setCoefficient(coefficients);
+    console.log(calculatedResult);
     setResult(calculatedResult);
     
 }
@@ -278,7 +255,8 @@ const solveAnswer = () => {
 
 const printAnswer = () => {
     if (result !== null) {
-        let polynomialLatex = `f(${findX}) = ${result}`;
+        //console.log(result);
+        let polynomialLatex = `f(${findX}) = ${result.toFixed(6)}`;
         const renderedAnswer = katex.renderToString(polynomialLatex, {
             throwOnError: false,
         });
@@ -289,7 +267,6 @@ const printAnswer = () => {
     }
     return null;
 };
-
 
 const printSolution = () => {
     if (result !== null) {
@@ -312,41 +289,34 @@ const printSolution = () => {
 };
 
 
-    
     return (
         <>
             <NavigationBar />
             <div className="outer-container">
-                <h1 className='title'>Multiple Linear Regression</h1>
+                <h1 className='title'>Polynomial Regression</h1>
                 <Row>
                     <Col md={3} className='left-column'>
-                        <div className="form-container" >
+                        <div className="form-container">
                             <Form>
-                            <Form.Group className="mb-3" style={{ display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center' }}>
-                                <Form.Label>k (number of x)</Form.Label>
+                                <Form.Group className="mb-3" style={{ display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center' }}>
+                                    <Form.Label>Find f(x) where x is</Form.Label>
                                     <Form.Control
                                         type="number"
-                                        value={K}
-                                        onChange={handleKChange}
+                                        value={findX}
+                                        onChange={(event) => setFindX(event.target.value)}
                                         style={{ width: '50%' }}
-                                        placeholder="2"
+                                        placeholder="3"
                                     />
                                 </Form.Group>
-                                <span style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', width: '100%' }}>
-                                <Form.Label style={{ alignItems: 'center' }}>Find f(x) where x is</Form.Label>
-                                </span>
-                                {[...Array(K)].map((_, index) => (
-                                    <Form.Group key={index} className="mb-3" style={{ display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center' }}>
-                                        <Form.Control
-                                            type="number"
-                                            value={findX[index] || ""}
-                                            onChange={(event) => handleFindXChange(index, event)}
-                                            style={{ width: '50%' }}
-                                            placeholder={`x${index + 1}`}
-                                        />
-                                    </Form.Group>
-                                ))}
 
+                                <Form.Label style={{ display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center' }}>m (order)</Form.Label>
+                                    <Form.Control
+                                        type="number"
+                                        value={order}
+                                        onChange={handleOrderChange}
+                                        style={{ width: '50%',margin: '0 auto'}}
+                                        placeholder="2"
+                                    />
 
                                 <Button variant="dark" onClick={handleShow} className="centered-button" style={{ width: "125px" }}>
                                     Set Value
@@ -403,5 +373,5 @@ const printSolution = () => {
     );
 };
 
-export default MultipleLinearRegression;
+export default PolynomialRegression;
 

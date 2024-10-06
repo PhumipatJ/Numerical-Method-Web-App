@@ -27,6 +27,8 @@ import Lagrange from './components/interpolation/lagrange';
 import Spline from './components/interpolation/spline';
 import LinearRegression from './components/extrapolation/linearRegression';
 import MultipleLinearRegression from './components/extrapolation/multipleLinearRegression';
+import PolynomialRegression from './components/extrapolation/polynomialRegression';
+
 
 
 const router = createBrowserRouter([
@@ -132,6 +134,11 @@ const router = createBrowserRouter([
   {
     path: "/multiple-linear-regression",
     element: <MultipleLinearRegression />
+  }
+  ,
+  {
+    path: "/polynomial-regression",
+    element: <PolynomialRegression />
   }
 
 ])

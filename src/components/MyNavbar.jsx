@@ -47,7 +47,6 @@ function NavigationBar() {
                   <NavDropdown.Item as={Link} to="/linear-regression">Linear Regression</NavDropdown.Item>
                   <NavDropdown.Item as={Link} to="/multiple-linear-regression">Multiple Linear Regression</NavDropdown.Item>
                   <NavDropdown.Item as={Link} to="/polynomial-regression">Polynomial Regression</NavDropdown.Item>
-                  <NavDropdown.Item as={Link} to="/multiple-polynomial-regression">Multiple Regression</NavDropdown.Item>
                 </NavDropdown>
 
                 <NavDropdown title="Integration" id="basic-nav-dropdown" className='dropdown-title'>
