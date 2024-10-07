@@ -3,13 +3,12 @@ const swaggerUi = require('swagger-ui-express');
 const swaggerJsdoc = require('swagger-jsdoc');
 const { Client } = require('pg');
 const cors = require('cors');
-require('dotenv').config(); // Make sure to load environment variables
 
 const app = express();
-const port = process.env.PORT || 10000; // Use environment port or fallback to 5000
+const port = process.env.PORT || 5000; 
 
-app.use(cors()); // Enable CORS for all routes
-app.use(express.json()); // Parse JSON requests
+app.use(cors()); 
+app.use(express.json()); 
 
 // Swagger setup
 const swaggerOptions = {
@@ -27,13 +26,12 @@ const swaggerOptions = {
       }
     ],
   },
-  apis: ['./server.js'], // Path to the API docs
+  apis: ['./server.js'], 
 };
 
 const swaggerDocs = swaggerJsdoc(swaggerOptions);
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocs));
 
-// Database connection using environment variables
 const db = new Client({
   user: process.env.DB_USER || "phumipat33628",
   host: process.env.DB_HOST || "dpg-cs1cqslds78s73b5glh0-a.singapore-postgres.render.com",
@@ -48,9 +46,8 @@ const db = new Client({
 
 db.connect();
 
-// Array to hold equations
-let rootOfEquationData = [];
 
+let rootOfEquationData = [];
 db.query('SELECT * FROM root_of_equation_data', (err, res) => {
   if (err) {
     console.error('Error executing query', err.stack);
