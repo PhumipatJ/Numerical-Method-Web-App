@@ -23,7 +23,12 @@ services:
     volumes:
       - ./backend:/app
     environment:
-      - DATABASE_URL=dpg-cs1cqslds78s73b5glh0-a.singapore-postgres.render.com
+      - DB_USER=phumipat33628 
+      - DB_HOST=dpg-cs1cqslds78s73b5glh0-a.singapore-postgres.render.com
+      - DB_NAME=numerical_method
+      - DB_PASSWORD=ehUNfB7RQ1YcI5dUFzwbRb2jgx3HCkuk
+      - DB_PORT=5432
+      - DB_SSL=true
 
 volumes:
   node_modules:

@@ -191,6 +191,6 @@ app.get("/rootOfEquationData/filter", (req, res) => {
 });
 
 
-app.listen(port, () => {
+app.listen('0.0.0.0', () => {
   console.log(`Successfully started server on port ${port}.`);
 });
