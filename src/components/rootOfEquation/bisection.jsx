@@ -7,11 +7,18 @@ import '../../App.css';
 import Row from 'react-bootstrap/Row';
 import Col from 'react-bootstrap/Col';
 import Accordion from 'react-bootstrap/Accordion';
-import IterationTable from './IterationTable';
+import { Table, Container } from 'react-bootstrap';
 import Plot from 'react-plotly.js';
 
 const BisectionMethods = () => {
-    const [data, setData] = useState([]);
+    const [Error, setError] = useState([]);
+    const [XLCal, setXLCal] = useState([]);
+    const [XRCal, setXRCal] = useState([]);
+    const [XMCal, setXMCal] = useState([]);
+    const [selectedXL, setSelectedXL] = useState(0);
+    const [selectedXR, setSelectedXR] = useState(0);
+    const [selectedXM, setSelectedXM] = useState(0);
+    const [Iteration, setIteration] = useState([]);
     const [Equation, setEquation] = useState("");
     const [X, setX] = useState(0);
     const [XL, setXL] = useState("");
@@ -23,7 +30,12 @@ const BisectionMethods = () => {
         let xm, fXm, fXr, ea, scope;
         let iter = 0;
         const e = 0.000001;
-        const newData = [];
+
+        let iterArr = [];
+        let xlArr = [];
+        let xrArr = [];
+        let xmArr = [];
+        let errArr = [];
 
         do {
             xm = (xl + xr) / 2.0;
@@ -36,16 +48,33 @@ const BisectionMethods = () => {
             iter++;
             if (fXm * fXr > 0) {
                 ea = error(xr, xm);
-                newData.push({ iteration: iter, Xl: xl, Xm: xm, Xr: xr, Error: ea });
+                xlArr.push(xl);
+                xrArr.push(xr);
+                xmArr.push(xm);
+                errArr.push(ea);
+                iterArr.push(iter);
                 xr = xm;
             } else if (fXm * fXr < 0) {
                 ea = error(xl, xm);
-                newData.push({ iteration: iter, Xl: xl, Xm: xm, Xr: xr, Error: ea });
+                xlArr.push(xl);
+                xrArr.push(xr);
+                xmArr.push(xm);
+                errArr.push(ea);
+                iterArr.push(iter);
                 xl = xm;
             }
         } while (ea > e);
 
-        setData(newData);
+        setIteration(iterArr);
+        setError(errArr);
+        setXLCal(xlArr);
+        setXRCal(xrArr);
+        setXMCal(xmArr);
+        //console.log(iterArr);
+        //console.log(xlArr);
+        //console.log(xrArr);
+        //console.log(xmArr);
+        //console.log(errArr);
         setX(xm);
     };
 
@@ -89,8 +118,8 @@ const BisectionMethods = () => {
     };
     
     const ErrorGraph = () => {
-        let xData = data.map((x) => x.iteration);
-        let yData = data.map((x) => x.Error);
+        let xData = Iteration.map((iter) => iter);
+        let yData = Error.map((error) => error); 
     
         return (
             <Plot
@@ -100,12 +129,11 @@ const BisectionMethods = () => {
                         y: yData,
                         mode: 'lines+markers',
                         type: 'scatter',
-                        marker: { color: 'blue' },
+                        marker: { color: '#5045e5' },
                         name: 'Error (%)',
                     },
                 ]}
                 layout={{
-                    title: 'Error Graph',
                     xaxis: {
                         title: 'Iteration',
                     },
@@ -117,6 +145,138 @@ const BisectionMethods = () => {
             />
         );
     };
+
+    const EquationGraph = (selectedXL,selectedXR,selectedXM) => {
+        const xlNum = parseFloat(XL);
+        const xrNum = parseFloat(XR);
+
+        const stepSize = (xrNum - xlNum) / 100;  
+        const xValues = Array.from({ length: 100 }, (_, i) => xlNum + (i * stepSize)); 
+        const yValues = xValues.map(x => {
+            try {
+                return evaluate(Equation, { x });  
+            } catch (error) {
+                console.error(`Error evaluating equation at x=${x}:`, error);
+                return null;  
+            }
+        });
+
+        return (
+            <Plot
+                data={[
+                    {
+                        x: xValues,
+                        y: yValues,
+                        mode: 'lines',
+                        type: 'scatter',
+                        marker: { color: '#5045e5' },
+                        name: 'f(x)',
+                    },
+                ]}
+
+                layout={{
+                    title: 'Equation Graph',
+                    xaxis: {
+                        title: 'x',
+                    },
+                    yaxis: {
+                        title: 'f(x)',
+                        rangemode: 'tozero',
+                    },
+                    shapes: [
+                        // Vertical line at XL
+                        {
+                            type: 'line',
+                            x0: selectedXL, 
+                            x1: selectedXL, 
+                            y0: Math.min(...yValues),
+                            y1: Math.max(...yValues),
+                            line: {
+                                color: 'red',
+                                width: 2,
+                            },
+                        },
+                        // Vertical line at XR
+                        {
+                            type: 'line',
+                            x0: selectedXR, 
+                            x1: selectedXR, 
+                            y0: Math.min(...yValues),
+                            y1: Math.max(...yValues),
+                            line: {
+                                color: 'red',
+                                width: 2,
+                            },
+                        },
+                        // Vertical line at XM
+                        {
+                            type: 'line',
+                            x0: selectedXM, 
+                            x1: selectedXM, 
+                            y0: Math.min(...yValues),
+                            y1: Math.max(...yValues),
+                            line: {
+                                color: 'green',
+                                width: 2,
+                            },
+                        },
+                        
+                        
+                    ],
+                }}
+                
+                
+            
+            />
+        );
+    };
+
+    const handleSelectedIteration = (value) => {
+        setSelectedXL(XLCal[value]);
+        setSelectedXR(XRCal[value]);
+        setSelectedXM(XMCal[value]);
+        //console.log("xl : " + selectedXL);
+        //console.log("xr : " + selectedXR);
+        //console.log("xm : " + selectedXM);
+    };
+
+    const IterationTable = () => {
+        const combinedData = Error.map((error, index) => ({
+            iteration: Iteration[index],
+            Xl: XLCal[index],
+            Xm: XMCal[index],
+            Xr: XRCal[index],
+            Error: error,
+        }));
+    
+        return (
+            <Container style={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
+                <Table className="rounded-table">
+                    <thead>
+                        <tr>
+                            <th style={{ textAlign: 'center', width: '10%', fontWeight: '600' }}>Iteration</th>
+                            <th style={{ textAlign: 'center', width: '10%', fontWeight: '600' }}>Xʟ</th>
+                            <th style={{ textAlign: 'center', width: '10%', fontWeight: '600' }}>Xᴍ</th>
+                            <th style={{ textAlign: 'center', width: '10%', fontWeight: '600' }}>Xʀ</th>
+                            <th style={{ textAlign: 'center', width: '10%', fontWeight: '600' }}>Error(%)</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {combinedData.map((element, index) => (
+                            <tr key={index}>
+                                <td style={{ textAlign: 'center' }}>{element.iteration}</td>
+                                <td style={{ textAlign: 'center' }}>{element.Xl.toFixed(7)}</td>
+                                <td style={{ textAlign: 'center' }}>{element.Xm.toFixed(7)}</td>
+                                <td style={{ textAlign: 'center' }}>{element.Xr.toFixed(7)}</td>
+                                <td style={{ textAlign: 'center' }}>{element.Error.toFixed(7)}</td>
+                            </tr>
+                        ))}
+                    </tbody>
+                </Table>
+            </Container>
+        );
+    };
+
     return (
         <>
             <NavigationBar />
@@ -154,6 +314,24 @@ const BisectionMethods = () => {
                     <Col md={9} className='right-column'>
                         <Accordion defaultActiveKey="0" className='according-container'>
                             <Accordion.Item eventKey="0">
+                                <Accordion.Header>Equation Graph</Accordion.Header>
+                                <Accordion.Body>
+                                    <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100%' }}>
+                                        {EquationGraph(selectedXL,selectedXR,selectedXM)}
+                                    </div>
+                                    <div style={{ width: '80%', margin: '0 auto', textAlign: 'center' }}>
+                                        <Form.Label>Iteration</Form.Label>
+                                        <Form.Range 
+                                            min={0} 
+                                            max={Iteration.length-1} 
+                                            step={1} 
+                                            onChange={(e) => handleSelectedIteration(Number(e.target.value))}
+                                        />
+                                    </div>
+                                    <br />
+                                </Accordion.Body>
+                            </Accordion.Item>
+                            <Accordion.Item eventKey="1">
                                 <Accordion.Header>Error Graph</Accordion.Header>
                                 <Accordion.Body>
                                     <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100%' }}>
@@ -161,10 +339,10 @@ const BisectionMethods = () => {
                                     </div>
                                 </Accordion.Body>
                             </Accordion.Item>
-                            <Accordion.Item eventKey="1">
+                            <Accordion.Item eventKey="2">
                                     <Accordion.Header>Iteration Table</Accordion.Header>
                                 <Accordion.Body>
-                                    <div><IterationTable data={data} /></div>
+                                    <div>{IterationTable()}</div>
                                 </Accordion.Body>
                             </Accordion.Item>
                         </Accordion>
