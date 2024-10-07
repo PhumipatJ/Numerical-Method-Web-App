@@ -7,8 +7,8 @@ import '../../App.css';
 import Row from 'react-bootstrap/Row';
 import Col from 'react-bootstrap/Col';
 import Accordion from 'react-bootstrap/Accordion';
-import ErrorGraph from './ErrorGraph';
 import IterationTable from './IterationTable';
+import Plot from 'react-plotly.js';
 
 const BisectionMethods = () => {
     const [data, setData] = useState([]);
@@ -88,7 +88,35 @@ const BisectionMethods = () => {
         }
     };
     
-
+    const ErrorGraph = () => {
+        let xData = data.map((x) => x.iteration);
+        let yData = data.map((x) => x.Error);
+    
+        return (
+            <Plot
+                data={[
+                    {
+                        x: xData,
+                        y: yData,
+                        mode: 'lines+markers',
+                        type: 'scatter',
+                        marker: { color: 'blue' },
+                        name: 'Error (%)',
+                    },
+                ]}
+                layout={{
+                    title: 'Error Graph',
+                    xaxis: {
+                        title: 'Iteration',
+                    },
+                    yaxis: {
+                        title: 'Error (%)',
+                        rangemode: 'tozero',
+                    },
+                }}
+            />
+        );
+    };
     return (
         <>
             <NavigationBar />
@@ -129,7 +157,7 @@ const BisectionMethods = () => {
                                 <Accordion.Header>Error Graph</Accordion.Header>
                                 <Accordion.Body>
                                     <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100%' }}>
-                                        <ErrorGraph xData={data.map((x) => x.iteration)} yData={data.map((x) => x.Error)} />
+                                        {ErrorGraph()}
                                     </div>
                                 </Accordion.Body>
                             </Accordion.Item>
