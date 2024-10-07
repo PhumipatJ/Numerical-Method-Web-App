@@ -6,7 +6,7 @@ const cors = require('cors');
 require('dotenv').config(); // Make sure to load environment variables
 
 const app = express();
-const port = process.env.PORT || 5000; // Use environment port or fallback to 5000
+const port = process.env.PORT || 10000; // Use environment port or fallback to 5000
 
 app.use(cors()); // Enable CORS for all routes
 app.use(express.json()); // Parse JSON requests
@@ -191,6 +191,6 @@ app.get("/rootOfEquationData/filter", (req, res) => {
 });
 
 
-app.listen('0.0.0.0', () => {
+app.listen(port, () => {
   console.log(`Successfully started server on port ${port}.`);
 });
