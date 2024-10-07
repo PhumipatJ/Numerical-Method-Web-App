@@ -34,11 +34,15 @@ app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocs));
 
 // Database connection using environment variables
 const db = new Client({
-  user: process.env.DB_USER || "postgres",
-  host: process.env.DB_HOST || "localhost",
-  database: process.env.DB_NAME || "Numerical Method",
-  password: process.env.DB_PASSWORD || "Turbo33628!0802225400",
-  port: 5432, // Default PostgreSQL port
+  user: process.env.DB_USER || "phumipat33628",
+  host: process.env.DB_HOST || "dpg-cs1cqslds78s73b5glh0-a.singapore-postgres.render.com",
+  database: process.env.DB_NAME || "numerical_method",
+  password: process.env.DB_PASSWORD || "ehUNfB7RQ1YcI5dUFzwbRb2jgx3HCkuk",
+  port: process.env.DB_PORT || 5432,
+  ssl: {
+    require: process.env.DB_SSL === 'true',
+    rejectUnauthorized: process.env.DB_SSL === 'true',
+  },
 });
 
 db.connect();
