@@ -9,27 +9,29 @@ const app = express();
 const port = process.env.PORT || 5000; // Use environment port or fallback to 5000
 
 app.use(cors()); // Enable CORS for all routes
+app.use(express.json()); // Parse JSON requests
 
 // Swagger setup
 const swaggerOptions = {
   swaggerDefinition: {
     openapi: '3.0.0', // Use OpenAPI 3.0
     info: {
-      title: 'Equation API',
+      title: 'Equatione API',
       version: '1.0.0',
-      description: 'API for getting equations',
+      description: 'API for get equation'
     },
     servers: [
       {
-        url: process.env.SWAGGER_URL || `http://localhost:${port}`, // Use the environment variable for production
-        description: 'API server',
-      },
+        url: `http://localhost:${port}`,
+        description: 'Local server'
+      }
     ],
   },
   apis: ['./server.js'], // Path to the API docs
 };
 
 const swaggerDocs = swaggerJsdoc(swaggerOptions);
+console.log(JSON.stringify(swaggerDocs, null, 2));
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocs));
 
 // Database connection using environment variables
@@ -50,7 +52,6 @@ db.connect();
 // Array to hold equations
 let rootOfEquationData = [];
 
-// Fetch equations data
 db.query('SELECT * FROM root_of_equation_data', (err, res) => {
   if (err) {
     console.error('Error executing query', err.stack);
@@ -59,12 +60,48 @@ db.query('SELECT * FROM root_of_equation_data', (err, res) => {
   }
 });
 
-// Parse JSON requests
-app.use(express.json());
 
-// 1. GET Root of Equation Data
+// 1. GET Root of Rquation Data
 /**
  * @swagger
+ * components:
+ *   schemas:
+ *     Equation:
+ *       type: object
+ *       properties:
+ *         id:
+ *           type: integer
+ *           example: 1
+ *         data_id:
+ *           type: integer
+ *           example: 1
+ *         fx:
+ *           type: string
+ *           example: "x^3 - 6x^2 + 4x + 12"
+ *         xl:
+ *           type: number
+ *           format: double
+ *           example: 1.0000000000
+ *         xr:
+ *           type: number
+ *           format: double
+ *           example: 5.0000000000
+ *         initial_x:
+ *           type: number
+ *           format: double
+ *           nullable: true
+ *           example: null
+ *         initial_first_x:
+ *           type: number
+ *           format: double
+ *           nullable: true
+ *           example: null
+ *         initial_second_x:
+ *           type: number
+ *           format: double
+ *           nullable: true
+ *           example: null
+ *
  * /rootOfEquationData:
  *   get:
  *     summary: Retrieve all equations
@@ -76,61 +113,85 @@ app.use(express.json());
  *             schema:
  *               type: array
  *               items:
- *                 type: object
- *                 properties:
- *                   id:
- *                     type: integer
- *                   data_id:
- *                     type: integer
- *                   fx:
- *                     type: string
- *                   xl:
- *                     type: number
- *                   xr:
- *                     type: number
- *                   initial_x:
- *                     type: number
- *                     nullable: true
- *                   initial_first_x:
- *                     type: number
- *                     nullable: true
- *                   initial_second_x:
- *                     type: number
- *                     nullable: true
+ *                 $ref: '#/components/schemas/Equation'
  */
-app.get('/rootOfEquationData', (req, res) => {
+app.get("/rootOfEquationData", (req, res) => {
+  //const randomIndex = Math.floor(Math.random() * rootOfEquationData.length);
   res.json(rootOfEquationData);
 });
 
 // 2. GET Root of Equation Data with filtering
 /**
  * @swagger
+ * components:
+ *   schemas:
+ *     Equation:
+ *       type: object
+ *       properties:
+ *         id:
+ *           type: integer
+ *           example: 1
+ *         data_id:
+ *           type: integer
+ *           example: 1
+ *         fx:
+ *           type: string
+ *           example: "x^3 - 6x^2 + 4x + 12"
+ *         xl:
+ *           type: number
+ *           format: double
+ *           example: 1.0000000000
+ *         xr:
+ *           type: number
+ *           format: double
+ *           example: 5.0000000000
+ *         initial_x:
+ *           type: number
+ *           format: double
+ *           nullable: true
+ *           example: null
+ *         initial_first_x:
+ *           type: number
+ *           format: double
+ *           nullable: true
+ *           example: null
+ *         initial_second_x:
+ *           type: number
+ *           format: double
+ *           nullable: true
+ *           example: null
+ *
  * /rootOfEquationData/filter:
  *   get:
- *     summary: Retrieve one randomly filtered equation by data_id
+ *     summary: Retrieve one randomly equations filtered by data_id
  *     parameters:
  *       - name: data_id
  *         in: query
  *         required: true
  *         schema:
  *           type: integer
+ *           example: 1
  *     responses:
  *       200:
- *         description: A filtered equation
- *       400:
- *         description: Invalid data_id
+ *         description: A list of equations
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: array
+ *               items:
+ *                 $ref: '#/components/schemas/Equation'
  */
-app.get('/rootOfEquationData/filter', (req, res) => {
-  const dataId = parseInt(req.query.data_id);
+app.get("/rootOfEquationData/filter", (req, res) => {
+  const dataId = parseInt(req.query.data_id); 
   if (isNaN(dataId)) {
-    return res.status(400).json({ error: 'Invalid data_id' });
+    return res.status(400).json({ error: "Invalid data_id" });
   }
   const filteredData = rootOfEquationData.filter(equation => equation.data_id === dataId);
   const randomIndex = Math.floor(Math.random() * filteredData.length);
   res.json(filteredData[randomIndex]);
 });
 
-// Start server
+
 app.listen(port, () => {
   console.log(`Successfully started server on port ${port}.`);
 });
