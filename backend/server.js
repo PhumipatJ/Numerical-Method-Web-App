@@ -31,7 +31,6 @@ const swaggerOptions = {
 };
 
 const swaggerDocs = swaggerJsdoc(swaggerOptions);
-console.log(JSON.stringify(swaggerDocs, null, 2));
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocs));
 
 // Database connection using environment variables
