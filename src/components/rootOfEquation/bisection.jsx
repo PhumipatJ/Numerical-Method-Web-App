@@ -18,6 +18,7 @@ const BisectionMethods = () => {
     const [selectedXL, setSelectedXL] = useState(0);
     const [selectedXR, setSelectedXR] = useState(0);
     const [selectedXM, setSelectedXM] = useState(0);
+    const [selectedIter, setSelectedIter] = useState();
     const [Iteration, setIteration] = useState([]);
     const [Equation, setEquation] = useState("");
     const [X, setX] = useState(0);
@@ -127,7 +128,7 @@ const BisectionMethods = () => {
                     {
                         x: xData,
                         y: yData,
-                        mode: 'lines+markers',
+                        mode: 'lines',
                         type: 'scatter',
                         marker: { color: '#5045e5' },
                         name: 'Error (%)',
@@ -192,7 +193,7 @@ const BisectionMethods = () => {
                             y0: Math.min(...yValues),
                             y1: Math.max(...yValues),
                             line: {
-                                color: 'red',
+                                color: '#D91656',
                                 width: 2,
                             },
                         },
@@ -204,7 +205,7 @@ const BisectionMethods = () => {
                             y0: Math.min(...yValues),
                             y1: Math.max(...yValues),
                             line: {
-                                color: 'red',
+                                color: '#FF6500',
                                 width: 2,
                             },
                         },
@@ -216,7 +217,7 @@ const BisectionMethods = () => {
                             y0: Math.min(...yValues),
                             y1: Math.max(...yValues),
                             line: {
-                                color: 'green',
+                                color: '#117554',
                                 width: 2,
                             },
                         },
@@ -235,6 +236,7 @@ const BisectionMethods = () => {
         setSelectedXL(XLCal[value]);
         setSelectedXR(XRCal[value]);
         setSelectedXM(XMCal[value]);
+        setSelectedIter(value);
         //console.log("xl : " + selectedXL);
         //console.log("xr : " + selectedXR);
         //console.log("xm : " + selectedXM);
@@ -320,7 +322,22 @@ const BisectionMethods = () => {
                                         {EquationGraph(selectedXL,selectedXR,selectedXM)}
                                     </div>
                                     <div style={{ width: '80%', margin: '0 auto', textAlign: 'center' }}>
-                                        <Form.Label>Iteration</Form.Label>
+                                        <Form.Label>
+                                            Iteration {selectedIter}
+                                            <br />
+                                            <span style={{ color: '#D91656' }}>
+                                                x<sub>L</sub> = {selectedXL.toFixed(15)}
+                                            </span>
+                                            <br />
+                                            <span style={{ color: '#117554' }}>
+                                                x<sub>M</sub> = {selectedXM.toFixed(15)}
+                                            </span>
+                                            <br />
+                                            <span style={{ color: '#FF6500' }}>
+                                                x<sub>R</sub> = {selectedXR.toFixed(15)}
+                                            </span>
+                                        </Form.Label>
+
                                         <Form.Range 
                                             min={0} 
                                             max={Iteration.length-1} 
