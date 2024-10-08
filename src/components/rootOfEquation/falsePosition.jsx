@@ -174,6 +174,11 @@ const FalsePositionMethods = () => {
                     },
                 ]}
 
+                config={{
+                    displayModeBar: true, 
+                    scrollZoom: true,
+                }}
+
                 layout={{
                     title: 'Equation Graph',
                     xaxis: {
@@ -220,11 +225,11 @@ const FalsePositionMethods = () => {
                                 width: 2,
                             },
                         },
-                        // Vertical line from f(xl) to f(xr)
+                        // Vertical line from f(xl) to 0
                         {
                             type: 'line',
                             x0: selectedXL , 
-                            x1: selectedXR ,  
+                            x1: selectedXM ,  
                             y0: (() => {
                                 try {
                                     return evaluate(Equation, { x: selectedXL }); 
@@ -233,18 +238,30 @@ const FalsePositionMethods = () => {
                                     return null; 
                                 }
                             })(), 
-                        
-                            y1: (() => {
+                            y1: 0 ,
+                            line: {
+                                color: '#117554',
+                                width: 2,
+                                dash: 'dot',
+                            },
+                        },
+                        // Vertical line from f(xr) to 0
+                        {
+                            type: 'line',
+                            x0: selectedXR , 
+                            x1: selectedXM ,  
+                            y0: (() => {
                                 try {
                                     return evaluate(Equation, { x: selectedXR }); 
                                 } catch (error) {
                                     console.error(`Error evaluating equation at x=${selectedXR}:`, error);
                                     return null; 
                                 }
-                            })(),
+                            })(), 
+                            y1: 0 ,
                             line: {
                                 color: '#117554',
-                                width: 1,
+                                width: 2,
                                 dash: 'dot',
                             },
                         },
@@ -353,15 +370,15 @@ const FalsePositionMethods = () => {
                                         <Form.Label>
                                             Iteration {selectedIter}
                                             <br />
-                                            <span style={{ color: '#D91656' }}>
+                                            <span style={{ color: '#D91656', fontWeight: '500' }}>
                                                 x<sub>L</sub> = {selectedXL.toFixed(15)}
                                             </span>
                                             <br />
-                                            <span style={{ color: '#117554' }}>
+                                            <span style={{ color: '#117554', fontWeight: '500' }}>
                                                 x<sub>M</sub> = {selectedXM.toFixed(15)}
                                             </span>
                                             <br />
-                                            <span style={{ color: '#FF6500' }}>
+                                            <span style={{ color: '#FF6500', fontWeight: '500' }}>
                                                 x<sub>R</sub> = {selectedXR.toFixed(15)}
                                             </span>
                                         </Form.Label>

@@ -12,14 +12,17 @@ import Plot from 'react-plotly.js';
 
 const BisectionMethods = () => {
     const [Error, setError] = useState([]);
+
     const [XLCal, setXLCal] = useState([]);
     const [XRCal, setXRCal] = useState([]);
     const [XMCal, setXMCal] = useState([]);
+    const [Iteration, setIteration] = useState([]);
+
     const [selectedXL, setSelectedXL] = useState(0);
     const [selectedXR, setSelectedXR] = useState(0);
     const [selectedXM, setSelectedXM] = useState(0);
     const [selectedIter, setSelectedIter] = useState();
-    const [Iteration, setIteration] = useState([]);
+
     const [Equation, setEquation] = useState("");
     const [X, setX] = useState(0);
     const [XL, setXL] = useState("");
@@ -148,8 +151,8 @@ const BisectionMethods = () => {
     };
 
     const EquationGraph = (selectedXL,selectedXR,selectedXM) => {
-        const xlNum = parseFloat(XL);
-        const xrNum = parseFloat(XR);
+        const xlNum = parseFloat(XL) - 1;
+        const xrNum = parseFloat(XR) + 1;
 
         const stepSize = (xrNum - xlNum) / 100;  
         const xValues = Array.from({ length: 100 }, (_, i) => xlNum + (i * stepSize)); 
@@ -174,6 +177,11 @@ const BisectionMethods = () => {
                         name: 'f(x)',
                     },
                 ]}
+
+                config={{
+                    displayModeBar: true, 
+                    scrollZoom: true,
+                }}
 
                 layout={{
                     title: 'Equation Graph',
@@ -221,7 +229,6 @@ const BisectionMethods = () => {
                                 width: 2,
                             },
                         },
-                        
                         
                     ],
                 }}
@@ -325,15 +332,15 @@ const BisectionMethods = () => {
                                         <Form.Label>
                                             Iteration {selectedIter}
                                             <br />
-                                            <span style={{ color: '#D91656' }}>
+                                            <span style={{ color: '#D91656', fontWeight: '500' }}>
                                                 x<sub>L</sub> = {selectedXL.toFixed(15)}
                                             </span>
                                             <br />
-                                            <span style={{ color: '#117554' }}>
+                                            <span style={{ color: '#117554', fontWeight: '500' }}>
                                                 x<sub>M</sub> = {selectedXM.toFixed(15)}
                                             </span>
                                             <br />
-                                            <span style={{ color: '#FF6500' }}>
+                                            <span style={{ color: '#FF6500', fontWeight: '500' }}>
                                                 x<sub>R</sub> = {selectedXR.toFixed(15)}
                                             </span>
                                         </Form.Label>

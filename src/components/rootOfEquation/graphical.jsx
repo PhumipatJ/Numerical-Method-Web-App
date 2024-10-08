@@ -29,17 +29,6 @@ const GraphicalMethods = () => {
         return evaluate(Equation, { x });
     };
 
-    const start = (xlnum, xrnum) => {
-        let left = 0, right = 0;
-        for (let i = xlnum; i < xrnum; i++) {
-            left = equation(i);
-            right = equation(i + 1);
-            if (left * right < 0) {
-                return i;
-            }
-        }
-        return -1;
-    };
 
     const calGraphical = (xlnum, xrnum) => {
         let iter = 0;
@@ -213,6 +202,11 @@ const GraphicalMethods = () => {
                     },
                 ]}
 
+                config={{
+                    displayModeBar: true, 
+                    scrollZoom: true,
+                }}
+
                 layout={{
                     title: 'Equation Graph',
                     xaxis: {
@@ -314,7 +308,7 @@ const GraphicalMethods = () => {
                                         <Form.Label>
                                             Iteration {selectedIter}
                                             <br />                                      
-                                            <span style={{ color: '#117554' }}>
+                                            <span style={{ color: '#117554', fontWeight: '500' }}>
                                                 ({selectedX},{selectedY})
                                             </span>
                                         </Form.Label>
