@@ -1,22 +1,50 @@
 import 'bootstrap/dist/css/bootstrap.min.css';
 import { useState } from "react";
-import { Button, Form, Table } from "react-bootstrap";
+import { Button, Form, Table, Container } from "react-bootstrap";
 import { evaluate, derivative , parse } from 'mathjs';
 import NavigationBar from '../MyNavbar';
 import '../../App.css';
 import Row from 'react-bootstrap/Row';
 import Col from 'react-bootstrap/Col';
 import Accordion from 'react-bootstrap/Accordion';
-import ErrorGraph from './ErrorGraph';
 import '../../css all/IterationTable.css'
+import Plot from 'react-plotly.js';
 
 
 const NewtonRaphsonMethods = () => {
     const [data, setData] = useState([]);
-    const [Equation, setEquation] = useState("(x^2)-7");
+
+    const [Error, setError] = useState([]);
+    const [selectedXnew, setSelectedXnew] = useState(0);
+    const [selectedXold, setSelectedXold] = useState(0);
+    const [selectedIter, setSelectedIter] = useState();
+
+    const [XCal, setXCal] = useState(0);
+    const [Iteration, setIteration] = useState([]);
+
+    const [Equation, setEquation] = useState("");
     const [X, setX] = useState(0);
-    const [Xini, setXini] = useState(0);
-    let newData = [];
+    const [Xini, setXini] = useState("");
+
+    const getEquationApi = async () => {
+        try {
+            const response = await fetch("http://localhost:5000/rootOfEquationData/filter?data_id=3"); 
+            if (!response.ok) {
+                throw new Error("Network response was not ok");
+            }
+
+            const equationData = await response.json();  
+            console.log(equationData);
+            if (equationData) {
+                setEquation(equationData.fx);
+                setXini(parseFloat(equationData.initial_x).toFixed(4));
+            } else {
+                console.error("No data received");
+            }
+        } catch (error) {
+            console.error("Failed to fetch equation data:", error);
+        }
+    };
 
     const error = (xold, xnew) => Math.abs((xnew - xold) / xnew) * 100;
 
@@ -34,19 +62,27 @@ const NewtonRaphsonMethods = () => {
         return x - ((evaluate(Equation, { x })) / (evaluate(diffEquation(Equation), { x })));
     };
 
+    let xData = [];
+    let errData = [];
+    let iterData = []
+
     let iter = 0;
     const CalNewton = (x1) => {
         let err;
         let x2 = equation(x1);
         if(Math.abs(x2-x1) < 0.00001){
-            setData(newData);
+            setError(errData);
+            setXCal(xData);
+            setIteration(iterData)
             setX(x2);
             return;
         }
         else{
             iter++;
             err = error(x1, x2);
-            newData.push({iteration:iter, newX: x2, Error: err });
+            xData.push(x2);
+            errData.push(err);
+            iterData.push(iter);
             return CalNewton(x2);
         }
 
@@ -65,28 +101,185 @@ const NewtonRaphsonMethods = () => {
         CalNewton(xini);
     };
 
-    const print = () => {
+    const handleSelectedIteration = (value) => {
+        //console.log(value);
+        //console.log(XCal);
+        setSelectedIter(value);
+        setSelectedXnew(XCal[value]);
+        if(value != 0){
+            setSelectedXold(XCal[value-1]);
+        }
+        else{
+            setSelectedXold(Xini);
+        }
+        //console.log(selectedXold);
+        //console.log(selectedXnew);
+    };
+
+    const ErrorGraph = () => {
+        let xData = Iteration.map((iter) => iter);
+        let yData = Error.map((error) => error); 
+    
         return (
-            <div style={{ marginTop: '20px' }}>
+            <Plot
+                data={[
+                    {
+                        x: xData,
+                        y: yData,
+                        mode: 'lines',
+                        type: 'scatter',
+                        marker: { color: '#5045e5' },
+                        name: 'Error (%)',
+                    },
+                ]}
+                layout={{
+                    xaxis: {
+                        title: 'Iteration',
+                    },
+                    yaxis: {
+                        title: 'Error (%)',
+                        rangemode: 'tozero',
+                    },
+                }}
+            />
+        );
+    };
+
+    const EquationGraph = (selectedXold,selectedXnew) => { 
+        const stepSize = 0.1; 
+        const xValues = Array.from({ length: 100 }, (_, i) => -5 + (i * stepSize)); // adjust number 0 to -5 to select quadrant
+        const yValues = xValues.map(x => {
+            try {
+                return evaluate(Equation, { x });  
+            } catch (error) {
+                console.error(`Error evaluating equation at x=${x}:`, error);
+                return null;  
+            }
+        });
+
+        return (
+            <Plot
+                data={[
+                    {
+                        x: xValues,
+                        y: yValues,
+                        mode: 'lines',
+                        type: 'scatter',
+                        marker: { color: '#5045e5' },
+                        name: 'f(x)',
+                    }
+                ]}
+
+                config={{
+                    displayModeBar: true, 
+                    scrollZoom: true,
+                }}
+
+                layout={{
+                    title: 'Equation Graph',
+                    xaxis: {
+                        title: 'x',
+                    },
+                    yaxis: {
+                        title: 'f(x)',
+                        rangemode: 'tozero',
+                    },
+                    
+                    shapes: [
+                        //xini to f(x)
+                        {
+                            type: 'line',
+                            x0: selectedXold, 
+                            x1: selectedXold, 
+                            y0: 0,
+                            y1: (() => {
+                                try {
+                                    return evaluate(Equation, { x: selectedXold }); 
+                                } catch (error) {
+                                    console.error(`Error evaluating equation at x=${selectedXold}:`, error);
+                                    return null; 
+                                }
+                            })(),
+                            line: {
+                                color: '#117554',
+                                width: 2,
+                                dash: 'dot',
+                            },
+                        }, 
+                         // f(x) to x line
+                         {
+                            type: 'line',
+                            x0: selectedXold, 
+                            x1: selectedXnew, 
+                            y0: (() => {
+                                try {
+                                    return evaluate(Equation, { x: selectedXold }); 
+                                } catch (error) {
+                                    console.error(`Error evaluating equation at x=${selectedXold}:`, error);
+                                    return null; 
+                                }
+                            })(),
+                            y1: 0, 
+                            line: {
+                                color: '#7A1CAC',
+                                width: 2,
+                            },
+                        }, 
+                        // x line to f(Xnew)
+                        {
+                            type: 'line',
+                            x0: selectedXnew, 
+                            x1: selectedXnew, 
+                            y0: 0,
+                            y1: (() => {
+                                try {
+                                    return evaluate(Equation, { x: selectedXnew }); 
+                                } catch (error) {
+                                    console.error(`Error evaluating equation at x=${selectedXnew}:`, error);
+                                    return null; 
+                                }
+                            })(), 
+                            line: {
+                                color: '#7A1CAC',
+                                width: 2,
+                                dash: 'dot',
+                            },
+                        }, 
+                        
+                    ],
+                }}      
+            />
+        );
+    };
+
+    const IterationTable = () => {
+        const combinedData = Error.map((error, index) => ({
+            iteration: Iteration[index],
+            X: XCal[index],
+            Error: error,
+        }));
+    
+        return (
+            <Container style={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
                 <Table className="rounded-table">
                     <thead>
                         <tr>
-                            <th>Iteration</th>
-                            <th>x</th>
-                            <th>Error (%)</th>
+                            <th style={{ textAlign: 'center', width: '10%', fontWeight: '600' }}>Iteration</th>
+                            <th style={{ textAlign: 'center', width: '10%', fontWeight: '600' }}>X</th>
+                            <th style={{ textAlign: 'center', width: '10%', fontWeight: '600' }}>Error(%)</th>
                         </tr>
                     </thead>
                     <tbody>
-                        {data.map((item, index) => (
+                        {combinedData.map((element, index) => (
                             <tr key={index}>
-                                <td style={{ textAlign: 'center' }}>{item.iteration}</td>
-                                <td style={{ textAlign: 'center' }}>{item.newX.toPrecision(7)}</td>
-                                <td style={{ textAlign: 'center' }}>{item.Error.toPrecision(7)}</td>
+                                <td style={{ textAlign: 'center' }}>{element.iteration}</td>
+                                <td style={{ textAlign: 'center' }}>{element.X.toFixed(7)}</td>
+                                <td style={{ textAlign: 'center' }}>{element.Error.toFixed(7)}</td>
                             </tr>
                         ))}
                     </tbody>
                 </Table>
-            </div>
+            </Container>
         );
     };
 
@@ -108,11 +301,11 @@ const NewtonRaphsonMethods = () => {
                                 </Form.Group>
                                 <Form.Group className="mb-3">
                                     <Form.Label>Input X (initial value)</Form.Label>
-                                    <Form.Control type="number" id="XL" onChange={inputInitial} style={{ width: '50%' }} placeholder="1" className="custom-placeholder"/>
-                                    <Form.Text className="text-muted">
-                                        Avoid input 0 as a initial value.
-                                    </Form.Text>
+                                    <Form.Control type="number" id="XL" value={Xini} onChange={inputInitial} style={{ width: '50%' }}  className="custom-placeholder"/>
                                 </Form.Group>
+                                <Button variant="dark" onClick={getEquationApi} className="centered-button" style={{ width: '50%' }}>
+                                    Get Equation
+                                </Button>
                                 <Button variant="dark" onClick={calculateRoot} className="centered-button">
                                     Solve
                                 </Button>
@@ -121,19 +314,48 @@ const NewtonRaphsonMethods = () => {
                         </div>
                     </Col>
                     <Col md={9} className='right-column'>
-                        <Accordion defaultActiveKey="0" className='according-container'>
-                            <Accordion.Item eventKey="0">
-                                <Accordion.Header>Error Graph</Accordion.Header>
+                    <Accordion defaultActiveKey="0" className='according-container'>
+                        <Accordion.Item eventKey="0">
+                                <Accordion.Header>Equation Graph</Accordion.Header>
                                 <Accordion.Body>
                                     <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100%' }}>
-                                        <ErrorGraph xData={data.map((x) => x.iteration)} yData={data.map((x) => x.Error)} />
+                                        {EquationGraph(selectedXold,selectedXnew)}
                                     </div>
+                                    <div style={{ width: '80%', margin: '0 auto', textAlign: 'center' }}>
+                                        <Form.Label>
+                                            Iteration {selectedIter+1}
+                                            <br />                                      
+                                            <span style={{ color: '#7A1CAC' , fontWeight: '500'}}>
+                                                x<sub>new</sub> = {selectedXnew}
+                                            </span>
+                                            <br />                                      
+                                            <span style={{ color: '#117554', fontWeight: '500' }}>
+                                                x<sub>old</sub> = {selectedXold}
+                                            </span>
+                                        </Form.Label>
+
+                                        <Form.Range 
+                                            min={0} 
+                                            max={(Iteration.length)-1} 
+                                            step={1} 
+                                            onChange={(e) => handleSelectedIteration(Number(e.target.value))}
+                                        />
+                                    </div>
+                                    <br />
                                 </Accordion.Body>
                             </Accordion.Item>
                             <Accordion.Item eventKey="1">
+                                <Accordion.Header>Error Graph</Accordion.Header>
+                                <Accordion.Body>
+                                    <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100%' }}>
+                                        {ErrorGraph()}
+                                    </div>
+                                </Accordion.Body>
+                            </Accordion.Item>
+                            <Accordion.Item eventKey="2">
                                     <Accordion.Header>Iteration Table</Accordion.Header>
                                 <Accordion.Body>
-                                    <div>{print()}</div>
+                                    <div>{IterationTable()}</div>
                                 </Accordion.Body>
                             </Accordion.Item>
                         </Accordion>

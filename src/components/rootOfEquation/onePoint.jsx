@@ -212,7 +212,6 @@ const OnePointMethods = () => {
                             line: {
                                 color: '#7A1CAC',
                                 width: 2,
-                                dash: 'dot',
                             },
                         }, 
                         // Xold to 0

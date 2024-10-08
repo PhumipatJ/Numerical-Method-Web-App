@@ -12,7 +12,25 @@ CREATE TABLE root_of_equation_data (
 INSERT INTO root_of_equation_data (id,data_id, fx, xl, xr, initial_x, initial_first_x, initial_second_x)
 VALUES
 (1, 1, 'x^3 - 6x^2 + 4x + 12', 1, 5, NULL, NULL, NULL),
-(2, 1, 'x^4 - 13', 1, 5, NULL, NULL, NULL),
-(3, 2, '((x^2)+7) / 2x', NULL, NULL, 1, NULL, NULL),
-(4, 3, '(x^2)-7', NULL, NULL, 1, NULL, NULL),
-(5, 4, '(x^2)-7', NULL, NULL, NULL, 1, 5);
+(2, 1, 'x^4 - 13', 1, 3, NULL, NULL, NULL),
+(3, 1, 'x^3 + 5x -35', 1, 5, NULL, NULL, NULL),
+(4, 1, '9x^3-54', -5, 5, NULL, NULL, NULL),
+(5, 1, 'cos(x)-x', -5, 5, NULL, NULL, NULL),
+
+
+
+
+
+(6, 2, '((x^2)+7) / 2x', NULL, NULL, 1, NULL, NULL),
+(7, 2, '(1+43x)/86', NULL, NULL, 4.5, NULL, NULL),
+(8, 2, '(e^(x/4))(2-x)-1', NULL, NULL, -4, NULL, NULL),
+
+
+
+
+(9, 3, '(x^2)-7', NULL, NULL, 1, NULL, NULL),
+(10, 3, 'cos(x)-x', NULL, NULL, 3, NULL, NULL),
+
+
+
+(6, 4, '(x^2)-7', NULL, NULL, NULL, 1, 5);
