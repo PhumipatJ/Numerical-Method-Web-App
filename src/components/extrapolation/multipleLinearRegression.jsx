@@ -9,7 +9,8 @@ import Accordion from 'react-bootstrap/Accordion';
 import Modal from 'react-bootstrap/Modal';
 import 'katex/dist/katex.min.css';
 import katex from 'katex';
-import { lusolve } from 'mathjs';
+import { lusolve, evaluate } from 'mathjs';
+import Plot from 'react-plotly.js';
 
 
 const MultipleLinearRegression = () => {
@@ -25,6 +26,7 @@ const MultipleLinearRegression = () => {
     const [regressionFunctionSubstitude, setRegressionFunctionSubstitude] = useState(""); 
     const [matrixEquation, setMatrixEquation] = useState(""); 
     const [matrixSubstitude, setMatrixSubstitude] = useState(""); 
+    const [Equation, setEquation] = useState("");
 
 
     const [show, setShow] = useState(false); 
@@ -341,7 +343,6 @@ const printSolution = () => {
     return null;
 };
 
-
     
     return (
         <>
@@ -421,6 +422,14 @@ const printSolution = () => {
                     <Col md={9} className='right-column'>
                         <Accordion defaultActiveKey="0" className='according-container'>
                             <Accordion.Item eventKey="0">
+                                <Accordion.Header>Equation Graph</Accordion.Header>
+                                <Accordion.Body>
+                                    <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100%' }}>
+                                        {}
+                                    </div>
+                                </Accordion.Body>
+                            </Accordion.Item>
+                            <Accordion.Item eventKey="1">
                                 <Accordion.Header>Solution</Accordion.Header>
                                 <Accordion.Body>
                                     <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100%'}}>

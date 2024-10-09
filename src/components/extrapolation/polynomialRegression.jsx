@@ -9,7 +9,8 @@ import Accordion from 'react-bootstrap/Accordion';
 import Modal from 'react-bootstrap/Modal';
 import 'katex/dist/katex.min.css';
 import katex from 'katex';
-import { lusolve } from 'mathjs';
+import { lusolve, evaluate } from 'mathjs';
+import Plot from 'react-plotly.js';
 
 
 const PolynomialRegression = () => {
@@ -24,6 +25,7 @@ const PolynomialRegression = () => {
     const [regressionFunctionSubstitude, setRegressionFunctionSubstitude] = useState(""); 
     const [matrixEquation, setMatrixEquation] = useState(""); 
     const [matrixSubstitude, setMatrixSubstitude] = useState(""); 
+    const [Equation, setEquation] = useState("");
 
 
     const [show, setShow] = useState(false); 
@@ -240,11 +242,15 @@ const solveAnswer = () => {
      matrixSubstitudeLatex += `\\end{bmatrix}`;
 
 
-
+    let equationPlot = `${coefficients[0]}`;
     let functionLatex = `f(x) = ${coefficients[0]}`;  
     for (let i = 1; i < order+1; i++) {
         functionLatex += ` + (${coefficients[i]})x^{${i}}`;
+        equationPlot += ` + ${coefficients[i]}x^${i}`
     }
+
+    console.log(equationPlot);
+    setEquation(equationPlot);
 
 
     const renderedFunction = katex.renderToString(functionLatex, {
@@ -307,6 +313,74 @@ const printSolution = () => {
         );
     }
     return null;
+};
+
+const EquationGraph = () => {
+    const xMin = Math.min(...X) - 2; 
+    const xMax = Math.max(...X) + 2;
+
+    const stepSize = (xMax - xMin) / 100;
+    const xValues = Array.from({ length: 100 }, (_, i) => xMin + (i * stepSize)); 
+    const yValues = xValues.map(x => {
+        try {
+            return evaluate(Equation, { x });  
+        } catch (error) {
+            console.error(`Error evaluating equation at x=${x}:`, error);
+            return null;  
+        }
+    });
+
+
+    return (
+        <Plot
+            data={[
+                //graph
+                {
+                    x: xValues,
+                    y: yValues,
+                    mode: 'lines',
+                    type: 'scatter',
+                    marker: { color: '#5045e5' },
+                    name: 'f(x)',
+                },
+                // points
+                {
+                    x: X,   
+                    y: fx, 
+                    mode: 'markers',
+                    type: 'scatter',
+                    marker: { color: '#D91656', size: 8 }, 
+                    name: 'Points',
+                },
+                // result
+                {
+                    x: [parseFloat(findX)],   
+                    y: [parseFloat(result)], 
+                    mode: 'markers',
+                    type: 'scatter',
+                    marker: { color: '#117554', size: 8 }, 
+                    name: 'Answer',
+                },
+                
+            ]}
+
+            config={{
+                displayModeBar: true, 
+                scrollZoom: true,
+            }}
+
+            layout={{
+                title: 'Equation Graph',
+                xaxis: {
+                    title: 'x',
+                },
+                yaxis: {
+                    title: 'f(x)',
+                    rangemode: 'tozero',
+                },     
+            }}            
+        />
+    );
 };
 
 
@@ -382,6 +456,14 @@ const printSolution = () => {
                     <Col md={9} className='right-column'>
                         <Accordion defaultActiveKey="0" className='according-container'>
                             <Accordion.Item eventKey="0">
+                                <Accordion.Header>Equation Graph</Accordion.Header>
+                                <Accordion.Body>
+                                    <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100%' }}>
+                                        {EquationGraph()}
+                                    </div>
+                                </Accordion.Body>
+                            </Accordion.Item>
+                            <Accordion.Item eventKey="1">
                                 <Accordion.Header>Solution</Accordion.Header>
                                 <Accordion.Body>
                                     <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100%'}}>

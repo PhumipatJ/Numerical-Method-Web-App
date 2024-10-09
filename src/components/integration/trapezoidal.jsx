@@ -9,77 +9,32 @@ import Col from 'react-bootstrap/Col';
 import Accordion from 'react-bootstrap/Accordion';
 import { Table, Container } from 'react-bootstrap';
 import Plot from 'react-plotly.js';
+import katex from 'katex';
 
 const Trapezoidal = () => {
-    const [Error, setError] = useState([]);
-
-    const [XLCal, setXLCal] = useState([]);
-    const [XRCal, setXRCal] = useState([]);
-    const [XMCal, setXMCal] = useState([]);
-    const [Iteration, setIteration] = useState([]);
-
-    const [selectedXL, setSelectedXL] = useState(0);
-    const [selectedXR, setSelectedXR] = useState(0);
-    const [selectedXM, setSelectedXM] = useState(0);
-    const [selectedIter, setSelectedIter] = useState();
-
     const [Equation, setEquation] = useState("");
-    const [X, setX] = useState(0);
-    const [XL, setXL] = useState("");
-    const [XR, setXR] = useState("");
+    const [area, setArea] = useState(0);
+    const [XL, setXL] = useState(""); //a
+    const [XR, setXR] = useState(""); //b
+    const [solution,setSolution] = useState("");
 
-    const error = (xold, xnew) => Math.abs((xnew - xold) / xnew) * 100;
+    const CalArea = (a, b) => {
+        const fa = evaluate(Equation, { x: a });
+        const fb = evaluate(Equation, { x: b });
+        let integrateArea = ((b-a)/2)*(fa+fb);
 
-    const Calbisection = (xl, xr) => {
-        let xm, fXm, fXr, ea, scope;
-        let iter = 0;
-        const e = 0.000001;
+        let solutionLatex = `\\displaystyle
+        Evaluate \\ ; \\ I = \\int_{a}^{b} f(x) \\ dx \\ = \\int_{${a}}^{${b}} ${Equation} \\ dx \\\\
+        From \\ \\ \\ I = \\frac{h}{2} [f(a) + f(b)] \\ ; \\ h = b-a \\\\
+        I = \\frac{${b-a}}{2} [(${fa}) + (${fb})] = ${integrateArea}
+        `;
 
-        let iterArr = [];
-        let xlArr = [];
-        let xrArr = [];
-        let xmArr = [];
-        let errArr = [];
 
-        do {
-            xm = (xl + xr) / 2.0;
-            scope = { x: xr };
-            fXr = evaluate(Equation, scope);
-
-            scope = { x: xm };
-            fXm = evaluate(Equation, scope);
-
-            iter++;
-            if (fXm * fXr > 0) {
-                ea = error(xr, xm);
-                xlArr.push(xl);
-                xrArr.push(xr);
-                xmArr.push(xm);
-                errArr.push(ea);
-                iterArr.push(iter);
-                xr = xm;
-            } else if (fXm * fXr < 0) {
-                ea = error(xl, xm);
-                xlArr.push(xl);
-                xrArr.push(xr);
-                xmArr.push(xm);
-                errArr.push(ea);
-                iterArr.push(iter);
-                xl = xm;
-            }
-        } while (ea > e);
-
-        setIteration(iterArr);
-        setError(errArr);
-        setXLCal(xlArr);
-        setXRCal(xrArr);
-        setXMCal(xmArr);
-        //console.log(iterArr);
-        //console.log(xlArr);
-        //console.log(xrArr);
-        //console.log(xmArr);
-        //console.log(errArr);
-        setX(xm);
+        const renderedSolution = katex.renderToString(solutionLatex, {
+            throwOnError: false,
+        });
+        setSolution(renderedSolution);
+        setArea(integrateArea);
     };
 
     const inputEquation = (event) => {
@@ -97,7 +52,7 @@ const Trapezoidal = () => {
     const calculateRoot = () => {
         const xlnum = parseFloat(XL);
         const xrnum = parseFloat(XR);
-        Calbisection(xlnum, xrnum);
+        CalArea(xlnum, xrnum);
     };
 
     const getEquationApi = async () => {
@@ -120,37 +75,31 @@ const Trapezoidal = () => {
             console.error("Failed to fetch equation data:", error);
         }
     };
+
+    const getLineFunction = () => {
+        let fXL,fXR;
+        try {
+            fXL = evaluate(Equation, { x: XL });
+        } catch (error) {
+            console.error(`Error evaluating equation at XL=${XL}:`, error);
+            fXL = null; // Assign null or a default value
+        }
+        
+        try {
+            fXR = evaluate(Equation, { x: XR });
+        } catch (error) {
+            console.error(`Error evaluating equation at XR=${XR}:`, error);
+            fXR = null; // Assign null or a default value
+        }
+        const m = (fXR - fXL) / (XR - XL);
     
-    const ErrorGraph = () => {
-        let xData = Iteration.map((iter) => iter);
-        let yData = Error.map((error) => error); 
+        const lineFunction =  `${m}*x + ${fXR-(m*XR)}`;
     
-        return (
-            <Plot
-                data={[
-                    {
-                        x: xData,
-                        y: yData,
-                        mode: 'lines',
-                        type: 'scatter',
-                        marker: { color: '#5045e5' },
-                        name: 'Error (%)',
-                    },
-                ]}
-                layout={{
-                    xaxis: {
-                        title: 'Iteration',
-                    },
-                    yaxis: {
-                        title: 'Error (%)',
-                        rangemode: 'tozero',
-                    },
-                }}
-            />
-        );
+        return lineFunction;
     };
 
-    const EquationGraph = (selectedXL,selectedXR,selectedXM) => {
+    
+    const EquationGraph = (XL,XR) => {
         const xlNum = parseFloat(XL) - 1;
         const xrNum = parseFloat(XR) + 1;
 
@@ -165,9 +114,35 @@ const Trapezoidal = () => {
             }
         });
 
+        let slopeEquation = getLineFunction();
+        //console.log(slopeEquation);
+        const realXL = parseFloat(XL);
+        const stepSize2 = (XR - XL) / 100;
+        const areaX = Array.from({ length: 101 }, (_, i) => realXL + i * stepSize2);
+        const areaY = areaX.map(x => {
+            try {
+                return evaluate(slopeEquation, { x });
+            } catch (error) {
+                console.error(`Error evaluating area equation at x=${x}:`, error);
+                return null;
+            }
+        });
+
+    //console.log('areaX:', areaX);
+    //console.log('areaY:', areaY);
+
         return (
             <Plot
                 data={[
+                    {
+                        x: areaX,
+                        y: areaY,
+                        fill: 'tozeroy', 
+                        type: 'scatter',
+                        mode: 'none',
+                        fillcolor: 'rgba(182, 255, 161, 0.5)', 
+                        name: 'Area',
+                    },
                     {
                         x: xValues,
                         y: yValues,
@@ -193,44 +168,72 @@ const Trapezoidal = () => {
                         rangemode: 'tozero',
                     },
                     shapes: [
-                        // Vertical line at XL
+                        // Vertical line at a 
                         {
                             type: 'line',
-                            x0: selectedXL, 
-                            x1: selectedXL, 
-                            y0: Math.min(...yValues),
-                            y1: Math.max(...yValues),
-                            line: {
-                                color: '#D91656',
-                                width: 2,
-                            },
-                        },
-                        // Vertical line at XR
-                        {
-                            type: 'line',
-                            x0: selectedXR, 
-                            x1: selectedXR, 
-                            y0: Math.min(...yValues),
-                            y1: Math.max(...yValues),
-                            line: {
-                                color: '#FF6500',
-                                width: 2,
-                            },
-                        },
-                        // Vertical line at XM
-                        {
-                            type: 'line',
-                            x0: selectedXM, 
-                            x1: selectedXM, 
-                            y0: Math.min(...yValues),
-                            y1: Math.max(...yValues),
+                            x0: XL, 
+                            x1: XL, 
+                            y0: 0,
+                            y1: (() => {
+                                try {
+                                    return evaluate(Equation, { x: XL }); 
+                                } catch (error) {
+                                    return null; 
+                                }
+                            })(),
                             line: {
                                 color: '#117554',
                                 width: 2,
+                                dash: 'dot',
+                            },
+                        },
+                        // Vertical line at b
+                        {
+                            type: 'line',
+                            x0: XR, 
+                            x1: XR, 
+                            y0: 0,
+                            y1: (() => {
+                                try {
+                                    return evaluate(Equation, { x: XR }); 
+                                } catch (error) {
+                                    return null; 
+                                }
+                            })(),
+                            line: {
+                                color: '#117554',
+                                width: 2,
+                                dash: 'dot',
+                            },
+                        },
+                        // Vertical line from f(a) to f(b)
+                        {
+                            type: 'line',
+                            x0: XL, 
+                            x1: XR, 
+                            y0: (() => {
+                                try {
+                                    return evaluate(Equation, { x: XL }); 
+                                } catch (error) {
+                                    return null; 
+                                }
+                            })(),
+                            y1: (() => {
+                                try {
+                                    return evaluate(Equation, { x: XR }); 
+                                } catch (error) {
+                                    return null; 
+                                }
+                            })(),
+                            line: {
+                                color: '#117554',
+                                width: 2,
+                                dash: 'dot',
                             },
                         },
                         
                     ],
+                    
                 }}
                 
                 
@@ -239,58 +242,11 @@ const Trapezoidal = () => {
         );
     };
 
-    const handleSelectedIteration = (value) => {
-        setSelectedXL(XLCal[value]);
-        setSelectedXR(XRCal[value]);
-        setSelectedXM(XMCal[value]);
-        setSelectedIter(value);
-        //console.log("xl : " + selectedXL);
-        //console.log("xr : " + selectedXR);
-        //console.log("xm : " + selectedXM);
-    };
-
-    const IterationTable = () => {
-        const combinedData = Error.map((error, index) => ({
-            iteration: Iteration[index],
-            Xl: XLCal[index],
-            Xm: XMCal[index],
-            Xr: XRCal[index],
-            Error: error,
-        }));
-    
-        return (
-            <Container style={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
-                <Table className="rounded-table">
-                    <thead>
-                        <tr>
-                            <th style={{ textAlign: 'center', width: '10%', fontWeight: '600' }}>Iteration</th>
-                            <th style={{ textAlign: 'center', width: '10%', fontWeight: '600' }}>Xʟ</th>
-                            <th style={{ textAlign: 'center', width: '10%', fontWeight: '600' }}>Xᴍ</th>
-                            <th style={{ textAlign: 'center', width: '10%', fontWeight: '600' }}>Xʀ</th>
-                            <th style={{ textAlign: 'center', width: '10%', fontWeight: '600' }}>Error(%)</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {combinedData.map((element, index) => (
-                            <tr key={index}>
-                                <td style={{ textAlign: 'center' }}>{element.iteration}</td>
-                                <td style={{ textAlign: 'center' }}>{element.Xl.toFixed(7)}</td>
-                                <td style={{ textAlign: 'center' }}>{element.Xm.toFixed(7)}</td>
-                                <td style={{ textAlign: 'center' }}>{element.Xr.toFixed(7)}</td>
-                                <td style={{ textAlign: 'center' }}>{element.Error.toFixed(7)}</td>
-                            </tr>
-                        ))}
-                    </tbody>
-                </Table>
-            </Container>
-        );
-    };
-
     return (
         <>
             <NavigationBar />
             <div className="outer-container">
-                <h1 className='title'>Trapezoldal Rule</h1>
+                <h1 className='title'>Trapezoidal Rule</h1>
                 <Row>
                     <Col md={3} className='left-column'>
                         <div className="form-container">
@@ -303,11 +259,11 @@ const Trapezoidal = () => {
                                     </Form.Text>
                                 </Form.Group>
                                 <Form.Group className="mb-3">
-                                    <Form.Label>Input Xʟ</Form.Label>
+                                    <Form.Label>Input a (left)</Form.Label>
                                     <Form.Control type="number" value={XL} id="XL" onChange={inputXL} style={{ width: '50%' }} className="custom-placeholder"/>
                                 </Form.Group>
                                 <Form.Group className="mb-3">
-                                    <Form.Label>Input Xʀ</Form.Label>
+                                    <Form.Label>Input b (right)</Form.Label>
                                     <Form.Control type="number" value={XR} id="XR" onChange={inputXR} style={{ width: '50%' }} className="custom-placeholder"/>
                                 </Form.Group>
                                 <Button variant="dark" onClick={getEquationApi} className="centered-button" style={{ width: '50%' }}>
@@ -316,7 +272,7 @@ const Trapezoidal = () => {
                                 <Button variant="dark" onClick={calculateRoot} className="centered-button">
                                     Solve
                                 </Button>
-                                <h5 style={{ textAlign: 'center', marginTop: '20px' }}>Answer : {X.toPrecision(7)}</h5>
+                                <h5 style={{ textAlign: 'center', marginTop: '20px' }}>Area : {area.toPrecision(7)}</h5>
                             </Form>
                         </div>
                     </Col>
@@ -326,47 +282,16 @@ const Trapezoidal = () => {
                                 <Accordion.Header>Equation Graph</Accordion.Header>
                                 <Accordion.Body>
                                     <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100%' }}>
-                                        {EquationGraph(selectedXL,selectedXR,selectedXM)}
+                                        {EquationGraph(XL,XR)}
                                     </div>
-                                    <div style={{ width: '80%', margin: '0 auto', textAlign: 'center' }}>
-                                        <Form.Label>
-                                            Iteration {selectedIter}
-                                            <br />
-                                            <span style={{ color: '#D91656', fontWeight: '500' }}>
-                                                x<sub>L</sub> = {selectedXL.toFixed(15)}
-                                            </span>
-                                            <br />
-                                            <span style={{ color: '#117554', fontWeight: '500' }}>
-                                                x<sub>M</sub> = {selectedXM.toFixed(15)}
-                                            </span>
-                                            <br />
-                                            <span style={{ color: '#FF6500', fontWeight: '500' }}>
-                                                x<sub>R</sub> = {selectedXR.toFixed(15)}
-                                            </span>
-                                        </Form.Label>
-
-                                        <Form.Range 
-                                            min={0} 
-                                            max={Iteration.length-1} 
-                                            step={1} 
-                                            onChange={(e) => handleSelectedIteration(Number(e.target.value))}
-                                        />
-                                    </div>
-                                    <br />
                                 </Accordion.Body>
                             </Accordion.Item>
                             <Accordion.Item eventKey="1">
-                                <Accordion.Header>Error Graph</Accordion.Header>
+                                <Accordion.Header>Solution</Accordion.Header>
                                 <Accordion.Body>
-                                    <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100%' }}>
-                                        {ErrorGraph()}
+                                    <div style={{ textAlign: 'center' }}>
+                                        {<div dangerouslySetInnerHTML={{ __html: solution }} />}
                                     </div>
-                                </Accordion.Body>
-                            </Accordion.Item>
-                            <Accordion.Item eventKey="2">
-                                    <Accordion.Header>Iteration Table</Accordion.Header>
-                                <Accordion.Body>
-                                    <div>{IterationTable()}</div>
                                 </Accordion.Body>
                             </Accordion.Item>
                         </Accordion>

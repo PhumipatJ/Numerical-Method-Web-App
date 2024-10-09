@@ -28,7 +28,7 @@ import Spline from './components/interpolation/spline';
 import LinearRegression from './components/extrapolation/linearRegression';
 import MultipleLinearRegression from './components/extrapolation/multipleLinearRegression';
 import PolynomialRegression from './components/extrapolation/polynomialRegression';
-
+import Trapezoidal from './components/integration/trapezoidal';
 
 const router = createBrowserRouter([
   {
@@ -139,8 +139,14 @@ const router = createBrowserRouter([
     path: "/polynomial-regression",
     element: <PolynomialRegression />
   }
+  ,
+  {
+    path: "/trapezoidal-rule",
+    element: <Trapezoidal />
+  }
  
 
+  
 ])
 
 const root = ReactDOM.createRoot(document.getElementById('root'));

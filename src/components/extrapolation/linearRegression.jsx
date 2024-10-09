@@ -9,7 +9,8 @@ import Accordion from 'react-bootstrap/Accordion';
 import Modal from 'react-bootstrap/Modal';
 import 'katex/dist/katex.min.css';
 import katex from 'katex';
-import { lusolve } from 'mathjs';
+import { lusolve, evaluate } from 'mathjs';
+import Plot from 'react-plotly.js';
 
 
 const LinearRegression = () => {
@@ -24,6 +25,7 @@ const LinearRegression = () => {
     const [regressionFunctionSubstitude, setRegressionFunctionSubstitude] = useState(""); 
     const [matrixEquation, setMatrixEquation] = useState(""); 
     const [matrixSubstitude, setMatrixSubstitude] = useState(""); 
+    const [Equation, setEquation] = useState("");
 
 
     const [show, setShow] = useState(false); 
@@ -43,7 +45,7 @@ const LinearRegression = () => {
             }
 
             const equationData = await response.json();  
-            console.log(equationData);
+            //console.log(equationData);
             if (equationData) {
                 setPoint(equationData.point_amount);
                 setX(equationData.x[0]);
@@ -109,7 +111,7 @@ const LinearRegression = () => {
     
     
 const solveAnswer = () => {
-    console.log(fx);
+    //console.log(fx);
     if (X.length < 2 || fx.length < 2) {
         alert("Please enter at least two points.");
         return;
@@ -135,7 +137,7 @@ const solveAnswer = () => {
     let B = [totalY, totalXY];
     
     const resultA = lusolve(A, B);
-    console.log(resultA);
+    //console.log(resultA);
     
     let slope = Number(resultA[1]);
     let intercept = Number(resultA[0]);
@@ -154,6 +156,8 @@ const solveAnswer = () => {
     `
 
     let functionLatex = `f(${findX}) =(${intercept}) + (${slope})x`
+    let equationDraw = `${intercept} + ${slope}x`
+    setEquation(equationDraw);
 
     const renderedFunction = katex.renderToString(functionLatex, {
         throwOnError: false,
@@ -177,11 +181,14 @@ const solveAnswer = () => {
     setMatrixEquation(renderedMatrix);
     setSlope(slope);
     setIntercept(intercept);
-    console.log(calculatedResult);
     setResult(calculatedResult);
+
+    //console.log(parseFloat(findX));
+    //console.log(result);
     
 }
-    
+
+
 
 const printAnswer = () => {
     if (result !== null) {
@@ -238,7 +245,73 @@ const printSolution = () => {
     return null;
 };
 
+const EquationGraph = () => {
+    const xMin = Math.min(...X) - 2; 
+    const xMax = Math.max(...X) + 2;
 
+    const stepSize = (xMax - xMin) / 100;
+    const xValues = Array.from({ length: 100 }, (_, i) => xMin + (i * stepSize)); 
+    const yValues = xValues.map(x => {
+        try {
+            return evaluate(Equation, { x });  
+        } catch (error) {
+            console.error(`Error evaluating equation at x=${x}:`, error);
+            return null;  
+        }
+    });
+
+
+    return (
+        <Plot
+            data={[
+                //graph
+                {
+                    x: xValues,
+                    y: yValues,
+                    mode: 'lines',
+                    type: 'scatter',
+                    marker: { color: '#5045e5' },
+                    name: 'f(x)',
+                },
+                // points
+                {
+                    x: X,   
+                    y: fx, 
+                    mode: 'markers',
+                    type: 'scatter',
+                    marker: { color: '#D91656', size: 8 }, 
+                    name: 'Points',
+                },
+                // result
+                {
+                    x: [parseFloat(findX)],   
+                    y: [parseFloat(result)], 
+                    mode: 'markers',
+                    type: 'scatter',
+                    marker: { color: '#117554', size: 8 }, 
+                    name: 'Answer',
+                },
+                
+            ]}
+
+            config={{
+                displayModeBar: true, 
+                scrollZoom: true,
+            }}
+
+            layout={{
+                title: 'Equation Graph',
+                xaxis: {
+                    title: 'x',
+                },
+                yaxis: {
+                    title: 'f(x)',
+                    rangemode: 'tozero',
+                },     
+            }}            
+        />
+    );
+};
     
     return (
         <>
@@ -303,6 +376,14 @@ const printSolution = () => {
                     <Col md={9} className='right-column'>
                         <Accordion defaultActiveKey="0" className='according-container'>
                             <Accordion.Item eventKey="0">
+                                <Accordion.Header>Equation Graph</Accordion.Header>
+                                <Accordion.Body>
+                                    <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100%' }}>
+                                        {EquationGraph()}
+                                    </div>
+                                </Accordion.Body>
+                            </Accordion.Item>
+                            <Accordion.Item eventKey="1">
                                 <Accordion.Header>Solution</Accordion.Header>
                                 <Accordion.Body>
                                     <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100%'}}>
