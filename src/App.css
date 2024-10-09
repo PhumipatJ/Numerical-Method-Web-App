@@ -45,6 +45,18 @@
     background-color: #4033c2; /* Color when hovered */
   }
 
+  .centered-button-2 {
+    background-color: #5045e5; /* Default background color */
+    color: #fff; /* Text color */
+    border: none; /* Remove default border */
+    width: 100px; /* Adjust width as needed */
+    transition: background-color 0.3s ease; /* Smooth transition for color change */
+  }
+  
+  .centered-button-2:hover {
+    background-color: #4033c2; /* Color when hovered */
+  }
+
   .custom-placeholder::placeholder {
     color: rgb(179, 177, 177);
   }

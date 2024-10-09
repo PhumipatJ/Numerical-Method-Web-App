@@ -9,7 +9,7 @@ CREATE TABLE root_of_equation_data (
     initial_second_x NUMERIC(10, 5)
 );
 
-INSERT INTO root_of_equation_data (id,data_id, fx, xl, xr, initial_x, initial_first_x, initial_second_x)
+INSERT INTO root_of_equation_data (id, data_id, fx, xl, xr, initial_x, initial_first_x, initial_second_x)
 VALUES
 (1, 1, 'x^3 - 6x^2 + 4x + 12', 1, 5, NULL, NULL, NULL),
 (2, 1, 'x^4 - 13', 1, 3, NULL, NULL, NULL),

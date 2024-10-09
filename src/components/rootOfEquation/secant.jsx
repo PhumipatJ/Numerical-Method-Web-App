@@ -354,18 +354,18 @@ const SecantMethods = () => {
                             <Form>
                                 <Form.Group className="mb-3">
                                     <Form.Label>Input Equation f(x)</Form.Label>
-                                    <Form.Control type="text" id="equation" value={Equation} onChange={inputEquation} style={{ width: '80%' }} placeholder="(x^2)-7" className="custom-placeholder"/>
+                                    <Form.Control type="text" id="equation" value={Equation} onChange={inputEquation} style={{ width: '80%' }} className="custom-placeholder"/>
                                     <Form.Text className="text-muted">
                                         Ensure proper arithmetic syntax.
                                     </Form.Text>
                                 </Form.Group>
                                 <Form.Group className="mb-3">
                                     <Form.Label>Input X₀ (first initial value)</Form.Label>
-                                    <Form.Control type="number" id="XL" value={Xini1} onChange={inputInitial1} style={{ width: '50%' }} placeholder="1" className="custom-placeholder"/>
+                                    <Form.Control type="number" id="XL" value={Xini1} onChange={inputInitial1} style={{ width: '50%' }}  className="custom-placeholder"/>
                                 </Form.Group>
                                 <Form.Group className="mb-3">
                                     <Form.Label>Input X₁ (second initial value)</Form.Label>
-                                    <Form.Control type="number" id="XL" value={Xini2} onChange={inputInitial2} style={{ width: '50%' }} placeholder="2" className="custom-placeholder"/>
+                                    <Form.Control type="number" id="XL" value={Xini2} onChange={inputInitial2} style={{ width: '50%' }}  className="custom-placeholder"/>
                                 </Form.Group>
                                 <Button variant="dark" onClick={getEquationApi} className="centered-button" style={{ width: '50%' }}>
                                     Get Equation

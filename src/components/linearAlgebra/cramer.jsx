@@ -57,9 +57,30 @@ const CramerRule = () => {
     const clearMatrixInputs = () => {
         const emptyMatrixA = MatrixA.map(row => row.map(() => ''));
         const emptyMatrixB = MatrixB.map(() => '');
-    
+        
         setMatrixA(emptyMatrixA);
         setMatrixB(emptyMatrixB);
+    };
+
+    const getEquationApi = async () => {
+        try {
+            const response = await fetch(`http://localhost:5000/linearAlgebraData/filter?data_id=1&dimension=${Dimension}`); 
+            if (!response.ok) {
+                throw new Error("Network response was not ok");
+            }
+
+            const equationData = await response.json();  
+            //console.log(equationData);
+            //console.log(Dimension);
+            if (equationData) {
+                setMatrixA(equationData.matrix_a);
+                setMatrixB(equationData.matrix_b[0]);
+            } else {
+                console.error("No data received");
+            }
+        } catch (error) {
+            console.error("Failed to fetch equation data:", error);
+        }
     };
     
 
@@ -264,7 +285,6 @@ const CramerRule = () => {
                                         value={Dimension} 
                                         onChange={getDimension} 
                                         style={{ width: '50%' }} 
-                                        placeholder="3" 
                                     />
                                 </Form.Group>
 
@@ -280,6 +300,9 @@ const CramerRule = () => {
                                         <div>{inputTable()}</div>
                                     </Modal.Body>
                                     <Modal.Footer>
+                                        <Button variant="dark" onClick={getEquationApi} className="centered-button-2" style={{ width: '15%' }}>
+                                            Get Matrix
+                                        </Button>
                                         <Button variant="danger" onClick={clearMatrixInputs}>
                                             Clear
                                         </Button>

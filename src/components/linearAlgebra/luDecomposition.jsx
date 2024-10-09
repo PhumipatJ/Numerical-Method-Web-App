@@ -57,6 +57,26 @@ const LU = () => {
         setMatrixB(emptyMatrixB);
     };
 
+    const getEquationApi = async () => {
+        try {
+            const response = await fetch(`http://localhost:5000/linearAlgebraData/filter?data_id=1&dimension=${Dimension}`);
+            if (!response.ok) {
+                throw new Error("Network response was not ok");
+            }
+
+            const equationData = await response.json();  
+            //console.log(equationData);
+            if (equationData) {
+                setMatrixA(equationData.matrix_a);
+                setMatrixB(equationData.matrix_b[0]);
+            } else {
+                console.error("No data received");
+            }
+        } catch (error) {
+            console.error("Failed to fetch equation data:", error);
+        }
+    };
+
     const inputTable = () => {
         const borderStyle = { borderLeft: '1px solid #b0bdf0' };
 
@@ -407,6 +427,9 @@ const LU = () => {
                                         <div>{inputTable()}</div>
                                     </Modal.Body>
                                     <Modal.Footer>
+                                        <Button variant="dark" onClick={getEquationApi} className="centered-button-2" style={{ width: '15%' }}>
+                                            Get Matrix
+                                        </Button>
                                         <Button variant="danger" onClick={clearMatrixInputs}>
                                             Clear
                                         </Button>

@@ -15,6 +15,7 @@ const GaussElimination = () => {
     const [solution, setSolution] = useState([]);
     const [steps, setSteps] = useState([]); // To store the steps for visualization
     const [show, setShow] = useState(false);
+    const [formulas, setFormulas] = useState([]); 
     const handleClose = () => setShow(false);
     const handleShow = () => setShow(true);
 
@@ -53,6 +54,25 @@ const GaussElimination = () => {
         setMatrixB(emptyMatrixB);
     };
 
+    const getEquationApi = async () => {
+        try {
+            const response = await fetch(`http://localhost:5000/linearAlgebraData/filter?data_id=1&dimension=${Dimension}`);
+            if (!response.ok) {
+                throw new Error("Network response was not ok");
+            }
+
+            const equationData = await response.json();  
+            //console.log(equationData);
+            if (equationData) {
+                setMatrixA(equationData.matrix_a);
+                setMatrixB(equationData.matrix_b[0]);
+            } else {
+                console.error("No data received");
+            }
+        } catch (error) {
+            console.error("Failed to fetch equation data:", error);
+        }
+    };
 
     const inputTable = () => {
         const borderStyle = { borderLeft: '1px solid #b0bdf0' };
@@ -100,6 +120,7 @@ const GaussElimination = () => {
     };
 
     const solveAnswer = () => {
+        setFormulas([]); 
         const matrixA = MatrixA.map(row => row.slice());
         const matrixB = MatrixB.slice();
         const stepsList = [];
@@ -133,24 +154,28 @@ const GaussElimination = () => {
                 addStep(`Eliminated X${k + 1} from row ${i + 1}`, matrixA, matrixB);
             }
         }
-    
+        
         // Back-substitution
         const x = Array(n).fill(0);
-        const formulas = [];
         for (let i = n - 1; i >= 0; i--) {
             let formula = `X<sub>${i + 1}</sub> = ${matrixB[i]}`;
+            let sum = 0; 
+        
+            // Calculate the sum of known x values
             for (let j = i + 1; j < n; j++) {
+                sum += matrixA[i][j] * x[j];
                 formula += ` - ${matrixA[i][j]}X<sub>${j + 1}</sub>`;
-                x[i] -= matrixA[i][j] * x[j];
             }
-            x[i] = (matrixB[i] - x[i]) / matrixA[i][i];
+        
+            // Calculate x[i]
+            x[i] = (matrixB[i] - sum) / matrixA[i][i];
             formula += ` / ${matrixA[i][i]} = ${x[i]}`;
             formulas.push(formula);
         }
     
         setSolution(x);
         setSteps(stepsList);
-        setFormulas(formulas); // Add this line to save the formulas state
+        setFormulas(formulas); // save the formulas state
     };
     
     
@@ -198,8 +223,6 @@ const GaussElimination = () => {
         );
     };
     
-
-    const [formulas, setFormulas] = useState([]); // New state for formulas
 
     const printAnswer = () => {
         if (solution.length === 0) return null;
@@ -250,6 +273,9 @@ const GaussElimination = () => {
                                         <div>{inputTable()}</div>
                                     </Modal.Body>
                                     <Modal.Footer>
+                                        <Button variant="dark" onClick={getEquationApi} className="centered-button-2" style={{ width: '15%' }}>
+                                            Get Matrix
+                                        </Button>
                                         <Button variant="danger" onClick={clearMatrixInputs}>
                                             Clear
                                         </Button>

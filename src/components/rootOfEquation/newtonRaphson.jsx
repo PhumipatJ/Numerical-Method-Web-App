@@ -294,7 +294,7 @@ const NewtonRaphsonMethods = () => {
                             <Form>
                                 <Form.Group className="mb-3">
                                     <Form.Label>Input Equation f(x)</Form.Label>
-                                    <Form.Control type="text" id="equation" value={Equation} onChange={inputEquation} style={{ width: '80%' }} placeholder="(x^2)-7" className="custom-placeholder"/>
+                                    <Form.Control type="text" id="equation" value={Equation} onChange={inputEquation} style={{ width: '80%' }}  className="custom-placeholder"/>
                                     <Form.Text className="text-muted">
                                         Ensure proper arithmetic syntax.
                                     </Form.Text>

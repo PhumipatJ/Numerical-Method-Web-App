@@ -47,6 +47,7 @@ const db = new Client({
 db.connect();
 
 
+//Root of Equation
 let rootOfEquationData = [];
 db.query('SELECT * FROM root_of_equation_data', (err, res) => {
   if (err) {
@@ -55,7 +56,6 @@ db.query('SELECT * FROM root_of_equation_data', (err, res) => {
     rootOfEquationData = res.rows;
   }
 });
-
 
 // 1. GET Root of Rquation Data
 /**
@@ -187,6 +187,160 @@ app.get("/rootOfEquationData/filter", (req, res) => {
   res.json(filteredData[randomIndex]);
 });
 
+
+
+//Linear Algebra
+let linearAlgebraData = [];
+db.query('SELECT * FROM linear_algebra_data', (err, res) => {
+  if (err) {
+    console.error('Error executing query', err.stack);
+  } else {
+    linearAlgebraData = res.rows;
+  }
+});
+
+// 3. GET Linear Algebra Data
+/**
+ * @swagger
+ * components:
+ *   schemas:
+ *     LinearAlgebraData:
+ *       type: object
+ *       properties:
+ *         id:
+ *           type: integer
+ *           description: The unique identifier for the linear algebra record
+ *           example: 1
+ *         dimension:
+ *           type: integer
+ *           description: The dimension of the matrices
+ *           example: 4
+ *         matrix_a:
+ *           type: array
+ *           description: 2D array representing matrix A
+ *           items:
+ *             type: array
+ *             items:
+ *               type: number
+ *               format: float
+ *           example: [[5, 2, 0, 0], [2, 5, 2, 0], [0, 2, 5, 2], [0, 0, 2, 5]]
+ *         matrix_b:
+ *           type: array
+ *           description: 1D array representing matrix B
+ *           items:
+ *             type: number
+ *             format: float
+ *           example: [12, 17, 14, 7]
+ *         matrix_ini:
+ *           type: array
+ *           description: 1D array representing the initial matrix
+ *           items:
+ *             type: number
+ *             format: float
+ *           example: [0, 0, 0, 0]
+ *
+ * /linearAlgebraData:
+ *   get:
+ *     summary: Retrieve all matrix data
+ *     responses:
+ *       200:
+ *         description: A list of matrix data entries
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: array
+ *               items:
+ *                 $ref: '#/components/schemas/LinearAlgebraData'
+ */
+app.get("/linearAlgebraData", (req, res) => {
+  //const randomIndex = Math.floor(Math.random() * linearAlgebraData.length);
+  res.json(linearAlgebraData);
+});
+
+// 4. GET Random Linear Algebra Data with filtering
+/**
+ * @swagger
+ * components:
+ *   schemas:
+ *     LinearAlgebraData:
+ *       type: object
+ *       properties:
+ *         id:
+ *           type: integer
+ *           description: The unique identifier for the linear algebra record
+ *           example: 1
+ *         dimension:
+ *           type: integer
+ *           description: The dimension of the matrices
+ *           example: 4
+ *         matrix_a:
+ *           type: array
+ *           description: 2D array representing matrix A
+ *           items:
+ *             type: array
+ *             items:
+ *               type: number
+ *               format: float
+ *           example: [[5, 2, 0, 0], [2, 5, 2, 0], [0, 2, 5, 2], [0, 0, 2, 5]]
+ *         matrix_b:
+ *           type: array
+ *           description: 1D array representing matrix B
+ *           items:
+ *             type: number
+ *             format: float
+ *           example: [12, 17, 14, 7]
+ *         matrix_ini:
+ *           type: array
+ *           description: 1D array representing the initial matrix
+ *           items:
+ *             type: number
+ *             format: float
+ *           example: [0, 0, 0, 0]
+ *
+ * /linearAlgebraData/filter:
+ *   get:
+ *     summary: Retrieve one randomly matrix filtered by data_id and dimension
+ *     parameters:
+ *       - name: data_id
+ *         in: query
+ *         required: true
+ *         schema:
+ *           type: integer
+ *           example: 1
+ *       - name: dimension
+ *         in: query
+ *         required: true
+ *         schema:
+ *           type: integer
+ *           example: 3
+ *     responses:
+ *       200:
+ *         description: A matrix data entry
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               $ref: '#/components/schemas/LinearAlgebraData'
+ */
+app.get("/linearAlgebraData/filter", (req, res) => {
+  const dataId = parseInt(req.query.data_id); 
+  const dimension = parseInt(req.query.dimension);
+
+  if (isNaN(dataId) || isNaN(dimension)) {
+    return res.status(400).json({ error: "Invalid data_id or dimension" });
+  }
+  
+  const filteredData = linearAlgebraData.filter(equation => 
+    equation.data_id === dataId && equation.dimension === dimension
+  );
+
+  if (filteredData.length === 0) {
+    return res.status(404).json({ error: "No data found for the given data_id and dimension" });
+  }
+
+  const randomIndex = Math.floor(Math.random() * filteredData.length);
+  res.json(filteredData[randomIndex]);
+});
 
 app.listen(port, () => {
   console.log(`Successfully started server on port ${port}.`);

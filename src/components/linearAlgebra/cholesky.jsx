@@ -56,6 +56,26 @@ const CholeskyDecomposition = () => {
         setMatrixA(emptyMatrixA);
         setMatrixB(emptyMatrixB);
     };
+
+    const getEquationApi = async () => {
+        try {
+            const response = await fetch(`http://localhost:5000/linearAlgebraData/filter?data_id=2&dimension=${Dimension}`);
+            if (!response.ok) {
+                throw new Error("Network response was not ok");
+            }
+
+            const equationData = await response.json();  
+            //console.log(equationData);
+            if (equationData) {
+                setMatrixA(equationData.matrix_a);
+                setMatrixB(equationData.matrix_b[0]);
+            } else {
+                console.error("No data received");
+            }
+        } catch (error) {
+            console.error("Failed to fetch equation data:", error);
+        }
+    };
     
 
     const inputTable = () => {
@@ -395,6 +415,9 @@ const CholeskyDecomposition = () => {
                                         <p style={{textAlign:"center"}}>Ensure matrix is symmetric and positive definite.</p>
                                     </Modal.Body>
                                     <Modal.Footer>
+                                        <Button variant="dark" onClick={getEquationApi} className="centered-button-2" style={{ width: '15%' }}>
+                                            Get Matrix
+                                        </Button>
                                         <Button variant="danger" onClick={clearMatrixInputs}>
                                             Clear
                                         </Button>
