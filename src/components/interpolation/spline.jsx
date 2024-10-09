@@ -35,6 +35,26 @@ const Spline = () => {
         setFx([]); 
     };
 
+    const getEquationApi = async () => {
+        try {
+            const response = await fetch(`http://localhost:5000/interExtraData/filter?data_id=1`);
+            if (!response.ok) {
+                throw new Error("Network response was not ok");
+            }
+
+            const equationData = await response.json();  
+            console.log(equationData);
+            if (equationData) {
+                setPoint(equationData.point_amount);
+                setX(equationData.x[0]);
+                setFx(equationData.fx);
+            } else {
+                console.error("No data received");
+            }
+        } catch (error) {
+            console.error("Failed to fetch equation data:", error);
+        }
+    };
     
     const inputTable = (point) => {
         const handleXChange = (index, event) => {
@@ -100,17 +120,16 @@ const solveAnswer = () => {
     const fValues = fx.map(Number);
     let interpolatedValue; // for store result
     
-    let slope = [...slopeArr]; //copy existed slope
-    if(slope.length === 0){ //if x and fx is not changed. not recalculate slope
-        for(let i=1;i<X.length;i++){
-            const x0 = xValues[i - 1];
-            const x1 = xValues[i];
-            const f0 = fValues[i - 1];
-            const f1 = fValues[i];
-            slope[i] =  ((f1 - f0) / (x1 - x0));
-        }
-        setSlope(slope);
+    let slope = [];
+    for(let i=1;i<X.length;i++){
+        const x0 = xValues[i - 1];
+        const x1 = xValues[i];
+        const f0 = fValues[i - 1];
+        const f1 = fValues[i];
+        slope[i] =  ((f1 - f0) / (x1 - x0));
     }
+    setSlope(slope);
+    
 
     let polynomialLatex = "";
     let AnswerPolynomialLatex = "";
@@ -369,6 +388,9 @@ const printSolution = () => {
                                         <p style={{textAlign:"center"}}>Please select at least 2 ponts</p>
                                     </Modal.Body>
                                     <Modal.Footer>
+                                         <Button variant="dark" onClick={getEquationApi} className="centered-button-2" style={{ width: '15%' }}>
+                                            Get Points
+                                        </Button>
                                         <Button variant="danger" onClick={clearInputs}>
                                             Clear
                                         </Button>

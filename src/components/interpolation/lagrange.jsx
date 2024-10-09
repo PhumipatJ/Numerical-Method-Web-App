@@ -32,6 +32,27 @@ const Lagrange = () => {
         setSelectPoints([]);
     };
 
+    const getEquationApi = async () => {
+        try {
+            const response = await fetch(`http://localhost:5000/interExtraData/filter?data_id=1`);
+            if (!response.ok) {
+                throw new Error("Network response was not ok");
+            }
+
+            const equationData = await response.json();  
+            console.log(equationData);
+            if (equationData) {
+                setPoint(equationData.point_amount);
+                setX(equationData.x[0]);
+                setFx(equationData.fx);
+            } else {
+                console.error("No data received");
+            }
+        } catch (error) {
+            console.error("Failed to fetch equation data:", error);
+        }
+    };
+
     const inputTable = (point) => {
         const handleXChange = (index, event) => {
             let newX = [...X];
@@ -319,6 +340,9 @@ const calculatePolynomial = (X, fx, xToFind) => {
                                         <p style={{textAlign:"center"}}>Please select at least 2 ponts</p>
                                     </Modal.Body>
                                     <Modal.Footer>
+                                        <Button variant="dark" onClick={getEquationApi} className="centered-button-2" style={{ width: '15%' }}>
+                                            Get Points
+                                        </Button>
                                         <Button variant="danger" onClick={clearInputs}>
                                             Clear
                                         </Button>

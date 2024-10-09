@@ -342,6 +342,153 @@ app.get("/linearAlgebraData/filter", (req, res) => {
   res.json(filteredData[randomIndex]);
 });
 
+
+
+//Interpolation & Extrapolation
+let interExtraData = [];
+db.query('SELECT * FROM inter_extra_data', (err, res) => {
+  if (err) {
+    console.error('Error executing query', err.stack);
+  } else {
+    interExtraData = res.rows;
+  }
+});
+
+// 5. GET Interpolation & Extrapolation Data
+/**
+ * @swagger
+ * components:
+ *   schemas:
+ *     InterExtraData:
+ *       type: object
+ *       properties:
+ *         id:
+ *           type: integer
+ *           description: The unique identifier for the interpolation/extrapolation record
+ *           example: 1
+ *         data_id:
+ *           type: integer
+ *           description: The reference ID for the related data
+ *           example: 1
+ *         point_amount:
+ *           type: integer
+ *           description: The number of points in the dataset
+ *           example: 5
+ *         x_amount:
+ *           type: integer
+ *           description: The number of x values, if applicable
+ *           example: 3
+ *         x:
+ *           type: array
+ *           description: 2D array representing matrix X values
+ *           items:
+ *             type: array
+ *             items:
+ *               type: number
+ *               format: float
+ *           example: [[2, 4, 6, 8, 10], [10, 15, 20, 25, 30], [1, 0, 2, 3, 4]]
+ *         fx:
+ *           type: array
+ *           description: 1D array representing matrix FX values
+ *           items:
+ *             type: number
+ *             format: float
+ *           example: [3.5, 8, 10.5, 39.5, 72]
+ *
+ * /interExtraData:
+ *   get:
+ *     summary: Retrieve all interpolation and extrapolation data
+ *     responses:
+ *       200:
+ *         description: A list of interpolation/extrapolation data entries
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: array
+ *               items:
+ *                 $ref: '#/components/schemas/InterExtraData'
+ */
+app.get("/interExtraData", (req, res) => {
+  res.json(interExtraData);
+});
+
+
+// 6. GET Interpolation & Extrapolation Data with filtering
+/**
+ * @swagger
+ * components:
+ *   schemas:
+ *     InterExtraData:
+ *       type: object
+ *       properties:
+ *         id:
+ *           type: integer
+ *           description: The unique identifier for the interpolation/extrapolation record
+ *           example: 1
+ *         data_id:
+ *           type: integer
+ *           description: The reference ID for the related data
+ *           example: 1
+ *         point_amount:
+ *           type: integer
+ *           description: The number of points in the dataset
+ *           example: 5
+ *         x_amount:
+ *           type: integer
+ *           description: The number of x values
+ *           example: 3
+ *         x:
+ *           type: array
+ *           description: 2D array representing matrix X values
+ *           items:
+ *             type: array
+ *             items:
+ *               type: number
+ *               format: float
+ *           example: [[2, 4, 6, 8, 10]]
+ *         fx:
+ *           type: array
+ *           description: 1D array representing matrix FX values
+ *           items:
+ *             type: number
+ *             format: float
+ *           example: [3.5, 8, 10.5, 39.5, 72]
+ *
+ * /interExtraData/filter:
+ *   get:
+ *     summary: Retrieve one randomly filtered data entry by data_id
+ *     parameters:
+ *       - name: data_id
+ *         in: query
+ *         required: true
+ *         schema:
+ *           type: integer
+ *           example: 1
+ *     responses:
+ *       200:
+ *         description: A filtered data entry
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/InterExtraData'
+ *       400:
+ *         description: Invalid data_id
+ *       404:
+ *         description: No data found for the given criteria
+ */
+app.get("/interExtraData/filter", (req, res) => {
+  const dataId = parseInt(req.query.data_id); 
+  if (isNaN(dataId)) {
+    return res.status(400).json({ error: "Invalid data_id" });
+  }
+  const filteredData = interExtraData.filter(equation => equation.data_id === dataId);
+  const randomIndex = Math.floor(Math.random() * filteredData.length);
+  res.json(filteredData[randomIndex]);
+});
+
+
+
+
 app.listen(port, () => {
   console.log(`Successfully started server on port ${port}.`);
 });

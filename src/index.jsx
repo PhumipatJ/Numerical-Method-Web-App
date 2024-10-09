@@ -30,7 +30,6 @@ import MultipleLinearRegression from './components/extrapolation/multipleLinearR
 import PolynomialRegression from './components/extrapolation/polynomialRegression';
 
 
-
 const router = createBrowserRouter([
   {
     path: "/",
@@ -140,6 +139,7 @@ const router = createBrowserRouter([
     path: "/polynomial-regression",
     element: <PolynomialRegression />
   }
+ 
 
 ])
 

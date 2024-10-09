@@ -36,6 +36,34 @@ const MultipleLinearRegression = () => {
         setFx([]); 
     };
 
+    const getEquationApi = async () => {
+        try {
+            const response = await fetch(`http://localhost:5000/interExtraData/filter?data_id=2`);
+            if (!response.ok) {
+                throw new Error("Network response was not ok");
+            }
+
+            const equationData = await response.json();  
+            console.log(equationData);
+            if (equationData) {
+                setPoint(equationData.point_amount);
+                setK(equationData.x_amount);
+
+                let xArr = [];
+                for(let i=0;i<point;i++){
+                    xArr[i] = equationData.x[i];
+                }
+                setX(xArr);
+                console.log(X);
+                setFx(equationData.fx);
+            } else {
+                console.error("No data received");
+            }
+        } catch (error) {
+            console.error("Failed to fetch equation data:", error);
+        }
+    };
+
     const handleKChange = (event) => {
         const newK = parseInt(event.target.value) || 1;
         setK(newK);
@@ -54,6 +82,7 @@ const MultipleLinearRegression = () => {
         let newFindX = [...findX];
         newFindX[index] = parseFloat(event.target.value) || 0;
         setFindX(newFindX);
+        //console.log(newFindX);
     };
 
 
@@ -63,6 +92,7 @@ const inputTable = (point) => {
         if (!newX[pointIndex]) newX[pointIndex] = Array(K).fill(0);
         newX[pointIndex][xIndex] = parseFloat(event.target.value) || 0; 
         setX(newX);
+        console.log(newX);
     };
 
     const handleFxChange = (index, event) => {
@@ -371,6 +401,9 @@ const printSolution = () => {
                                         <p style={{textAlign:"center"}}>Please input at least 2 points</p>
                                     </Modal.Body>
                                     <Modal.Footer>
+                                        <Button variant="dark" onClick={getEquationApi} className="centered-button-2" style={{ width: '15%' }}>
+                                            Get Points
+                                        </Button>
                                         <Button variant="danger" onClick={clearInputs}>
                                             Clear
                                         </Button>
