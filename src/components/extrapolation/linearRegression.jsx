@@ -39,7 +39,7 @@ const LinearRegression = () => {
 
     const getEquationApi = async () => {
         try {
-            const response = await fetch(`http://localhost:5000/interExtraData/filter?data_id=1`);
+            const response = await fetch(`https://numerical-method-web-app.onrender.com/interExtraData/filter?data_id=1`);
             if (!response.ok) {
                 throw new Error("Network response was not ok");
             }

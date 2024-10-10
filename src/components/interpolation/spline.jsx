@@ -37,7 +37,7 @@ const Spline = () => {
 
     const getEquationApi = async () => {
         try {
-            const response = await fetch(`http://localhost:5000/interExtraData/filter?data_id=1`);
+            const response = await fetch(`https://numerical-method-web-app.onrender.com/interExtraData/filter?data_id=1`);
             if (!response.ok) {
                 throw new Error("Network response was not ok");
             }
@@ -388,7 +388,7 @@ const printSolution = () => {
                                         <p style={{textAlign:"center"}}>Please select at least 2 ponts</p>
                                     </Modal.Body>
                                     <Modal.Footer>
-                                         <Button variant="dark" onClick={getEquationApi} className="centered-button-2" style={{ width: '15%' }}>
+                                        <Button variant="dark" onClick={getEquationApi} className="centered-button-2" style={{ width: '15%' }}>
                                             Get Points
                                         </Button>
                                         <Button variant="danger" onClick={clearInputs}>

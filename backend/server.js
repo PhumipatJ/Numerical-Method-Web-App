@@ -21,6 +21,10 @@ const swaggerOptions = {
     },
     servers: [
       {
+        url: `https://your-app-name.onrender.com`, 
+        description: 'Render server'
+      },
+      {
         url: `http://localhost:${port}`,
         description: 'Local server'
       }

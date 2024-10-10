@@ -21,7 +21,7 @@ const Trapezoidal = () => {
 
     const getEquationApi = async () => {
         try {
-            const response = await fetch("http://localhost:5000/integrateData/random"); 
+            const response = await fetch("https://numerical-method-web-app.onrender.com/integrateData/random"); 
             if (!response.ok) {
                 throw new Error("Network response was not ok");
             }

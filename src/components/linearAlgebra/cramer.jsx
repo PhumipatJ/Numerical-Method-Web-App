@@ -64,7 +64,7 @@ const CramerRule = () => {
 
     const getEquationApi = async () => {
         try {
-            const response = await fetch(`http://localhost:5000/linearAlgebraData/filter?data_id=1&dimension=${Dimension}`); 
+            const response = await fetch(`https://numerical-method-web-app.onrender.com/linearAlgebraData/filter?data_id=1&dimension=${Dimension}`); 
             if (!response.ok) {
                 throw new Error("Network response was not ok");
             }
