@@ -489,6 +489,114 @@ app.get("/interExtraData/filter", (req, res) => {
 
 
 
+
+let integrateData = [];
+db.query('SELECT * FROM integrate_data', (err, res) => {
+  if (err) {
+    console.error('Error executing query', err.stack);
+  } else {
+    integrateData = res.rows;
+  }
+});
+// 7. GET All Integrate Data 
+/**
+ * @swagger
+ * components:
+ *   schemas:
+ *     InterExtraData:
+ *       type: object
+ *       properties:
+ *         id:
+ *           type: integer
+ *           example: 1
+ *         data_id:
+ *           type: integer
+ *           example: 1
+ *         fx:
+ *           type: string
+ *           example: "x^3 - 6x^2 + 4x + 20"
+ *         a:
+ *           type: number
+ *           format: double
+ *           example: -0.5
+ *         b:
+ *           type: number
+ *           format: double
+ *           example: 4.5
+ *         n:
+ *           type: number
+ *           format: double
+ *           example: 10
+ *
+ * /integrateData:
+ *   get:
+ *     summary: Retrieve all integrate data
+ *     responses:
+ *       200:
+ *         description: A list of interpolation/extrapolation data entries
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: array
+ *               items:
+ *                 $ref: '#/components/schemas/InterExtraData'
+ */
+app.get("/integrateData", (req, res) => {
+  res.json(integrateData);
+});
+
+// 8. GET Integrate Data randomly
+/**
+ * @swagger
+ * components:
+ *   schemas:
+ *     InterExtraData:
+ *       type: object
+ *       properties:
+ *         id:
+ *           type: integer
+ *           example: 1
+ *         data_id:
+ *           type: integer
+ *           example: 1
+ *         fx:
+ *           type: string
+ *           example: "x^3 - 6x^2 + 4x + 20"
+ *         a:
+ *           type: number
+ *           format: double
+ *           example: -0.5
+ *         b:
+ *           type: number
+ *           format: double
+ *           example: 4.5
+ *         n:
+ *           type: number
+ *           format: double
+ *           example: 10
+ *
+ * /integrateData/random:
+ *   get:
+ *     summary: Retrieve one integrate data randomly
+ *     responses:
+ *       200:
+ *         description: A list of interpolation/extrapolation data entries
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: array
+ *               items:
+ *                 $ref: '#/components/schemas/InterExtraData'
+ */
+app.get("/integrateData/random", (req, res) => {
+  const randomIndex = Math.floor(Math.random() * integrateData.length);
+  res.json(integrateData[randomIndex]);
+});
+
+
+
+
+
 app.listen(port, () => {
   console.log(`Successfully started server on port ${port}.`);
 });

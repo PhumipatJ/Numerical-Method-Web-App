@@ -29,6 +29,8 @@ import LinearRegression from './components/extrapolation/linearRegression';
 import MultipleLinearRegression from './components/extrapolation/multipleLinearRegression';
 import PolynomialRegression from './components/extrapolation/polynomialRegression';
 import Trapezoidal from './components/integration/trapezoidal';
+import CompositeTrapezoidal from './components/integration/compositeTrapezoidal';
+import Simpson from './components/integration/simpson';
 
 const router = createBrowserRouter([
   {
@@ -144,8 +146,18 @@ const router = createBrowserRouter([
     path: "/trapezoidal-rule",
     element: <Trapezoidal />
   }
+  ,
+  {
+    path: "/composite-trapezoidal",
+    element: <CompositeTrapezoidal />
+  }
+  ,
+  {
+    path: "/simpson-rule",
+    element: <Simpson />
+  }
  
-
+  
   
 ])
 
