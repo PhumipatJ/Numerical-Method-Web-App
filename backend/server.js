@@ -5,7 +5,7 @@ const { Client } = require('pg');
 const cors = require('cors');
 
 const app = express();
-const port = process.env.PORT || 5000; 
+const port = process.env.PORT || 10000; 
 
 app.use(cors()); 
 app.use(express.json()); 
@@ -21,7 +21,7 @@ const swaggerOptions = {
     },
     servers: [
       {
-        url: `https://your-app-name.onrender.com`, 
+        url: `https://numerical-method-web-app.onrender.com`, 
         description: 'Render server'
       },
       {
