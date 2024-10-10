@@ -27,7 +27,7 @@ const Simpson = () => {
             }
 
             const equationData = await response.json();  
-            console.log(equationData);
+            //console.log(equationData);
             if (equationData) {
                 setEquation(equationData.fx);
                 setXL(parseFloat(equationData.a).toFixed(4));
@@ -42,28 +42,56 @@ const Simpson = () => {
     };
 
     const CalArea = (a, b) => {
-        const h = (b-a)/2;
+        //console.log(N);
         const fa = evaluate(Equation, { x: a });
         const fb = evaluate(Equation, { x: b });
-        const fmid = evaluate(Equation, { x: (a+b)/2 });
-        let integrateArea = (h/3)*(fa+(4*fmid)+fb);
+        let integrateArea = 0;
 
-        
         let solutionLatex = ``;
-        if(N === 1){
+        if(N === '1'){
+            const h = (b-a)/2;
+            const fmid = evaluate(Equation, { x: (a+b)/2 });
+            integrateArea = (h/3)*(fa+(4*fmid)+fb);
             solutionLatex = `\\displaystyle
             Evaluate \\ ; \\ I = \\int_{a}^{b} f(x) \\ dx \\ = \\int_{${a}}^{${b}} ${Equation} \\ dx \\\\
             when \\ \\ x_0 = a \\ ,\\ x_1 = \\frac{a+b}{2} \\,\\  x_n = b \\\\
             From \\ \\ \\ I = \\frac{h}{3} [f(x_0) + 4f(x_1) + f(x_2)] \\ ; \\ h = \\frac{b-a}{2} \\\\
-            Simpson \\ Integral \\ ; I = \\frac{${h}}{3} [(${fa}) + 4(${fmid}) + (${fb})] = ${integrateArea}
+            Simpson \\ Integral \\ ; I = \\frac{${h}}{3} [(${fa}) + 4(${fmid}) + (${fb})] = ${Math.abs(integrateArea)}
             `;
         }
         else{
+            const h = (b-a)/(N*2); // amout of box
+            //console.log(h);
+            let fodd = 0;
+            let feven = 0;
+            let oddArr = [];
+            let evenArr = [];
+            let xArr = [];
+            let fxArr = [];
+            for (let i = 1; i <= (N*2)-1; i++) {
+                let xi = a + (i * h); 
+                xArr.push(xi);
+                fxArr.push(evaluate(Equation,{x : xi}));
+                if(i % 2 == 0){ // i = even
+                    feven += evaluate(Equation,{x : xi});
+                    //evenArr.push(xi);
+                }
+                else if(i % 2 !== 0){ // i = odd
+                    fodd += evaluate(Equation,{x : xi});
+                    //oddArr.push(xi);
+                }
+            }
+            console.log("x : " + xArr);
+            console.log("fx : " + fxArr);
+            //console.log("odd : " + oddArr);
+            //console.log("even : " + evenArr);
+            integrateArea = (h/3)*(fa+fb+(4*fodd)+(2*feven));
+
             solutionLatex = `\\displaystyle
             Evaluate \\ ; \\ I = \\int_{a}^{b} f(x) \\ dx \\ = \\int_{${a}}^{${b}} ${Equation} \\ dx \\\\
-            when \\ \\ x_0 = a \\ ,\\ x_1 = \\frac{a+b}{2} \\,\\  x_n = b \\\\
-            From \\ \\ \\ I = \\frac{h}{3} [f(x_0) + 4f(x_1) + f(x_2)] \\ ; \\ h = \\frac{b-a}{2} \\\\
-            Simpson \\ Integral \\ ; I = \\frac{${h}}{3} [(${fa}) + 4(${fmid}) + (${fb})] = ${integrateArea}
+            when \\ \\ x_0 = a \\ ,\\ x_i = x_0+ih \\,\\  x_n = b \\\\
+            From \\ \\ \\ I = \\frac{h}{3} [f(x_0) + f(x_n) + 4f(x_i) + 2f(x_i)] \\ ; \\ h = \\frac{b-a}{2} \\\\
+            Simpson \\ Integral \\ ; I = \\frac{${h.toFixed(6)}}{3} [(${fa}) + 4(${fb}) + 4(${fodd.toFixed(6)}) + 2(${feven.toFixed(6)})] = ${Math.abs(integrateArea).toFixed(6)}
             `;
         }
         
@@ -73,7 +101,7 @@ const Simpson = () => {
             throwOnError: false,
         });
         setSolution(renderedSolution);
-        setArea(integrateArea);
+        setArea(Math.abs(integrateArea));
     };
 
     const inputEquation = (event) => {
@@ -144,8 +172,9 @@ const Simpson = () => {
 
 
         let slopeEquation = [];
+        let error = 1e-10;
         let segmentAmount = (xrNum2-xlNum2)/Nnum;
-        for(let i = xlNum2; i < xrNum2 ;i+=segmentAmount){
+        for(let i = xlNum2; i < xrNum2-error ;i+=segmentAmount){
             slopeEquation.push({
                 a: i, 
                 mid: (i+i+segmentAmount)/2,
@@ -154,7 +183,7 @@ const Simpson = () => {
                 equationRight: getLineFunction((i+i+segmentAmount)/2, i+segmentAmount) 
             });
         }
-        //console.log(slopeEquation);
+        console.log(slopeEquation);
 
         const stepSize2 = (xrNum2 - xlNum2) / 100;
         const areaX = Array.from({ length: 201 }, (_, i) => xlNum2 + (i * stepSize2 / 2)); // Double the number of points
@@ -254,7 +283,7 @@ const Simpson = () => {
                                     }
                                 })(),
                                 line: {
-                                    color: '#117554',
+                                    color: '#FF6500',
                                     width: 1,
                                     dash: 'dot',
                                 },
@@ -273,7 +302,7 @@ const Simpson = () => {
                                     }
                                 })(),
                                 line: {
-                                    color: '#117554',
+                                    color: '#FF6500',
                                     width: 1,
                                     dash: 'dot',
                                 },
@@ -399,7 +428,7 @@ const Simpson = () => {
                                 <Accordion.Header>Equation Graph</Accordion.Header>
                                 <Accordion.Body>
                                     <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100%' }}>
-                                        {EquationGraph(XL,XR)}
+                                        {EquationGraph(parseFloat(XL),parseFloat(XR))}
                                     </div>
                                 </Accordion.Body>
                             </Accordion.Item>

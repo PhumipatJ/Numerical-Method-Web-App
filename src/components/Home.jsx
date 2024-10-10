@@ -48,9 +48,7 @@ function Home() {
       <div className="item">
         <h3 className="topic">Integration</h3>
         <p><Link to="/trapezoidal-rule" className="link">Trapezoidal Rule</Link></p>
-        <p><Link to="/composite-trapezoidal" className="link">Composite Trapezoidal Rule</Link></p>
         <p><Link to="/simpson-rule" className="link">Simpson Rule</Link></p>
-        <p><Link to="/composite-simpson" className="link">Composite Simpson Rule</Link></p>
         <br />
         <br />
         <br />

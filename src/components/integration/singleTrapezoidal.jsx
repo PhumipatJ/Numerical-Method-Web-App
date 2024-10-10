@@ -11,56 +11,24 @@ import { Table, Container } from 'react-bootstrap';
 import Plot from 'react-plotly.js';
 import katex from 'katex';
 
-const CompositeTrapezoidal = () => {
+const Trapezoidal = () => {
     const [Equation, setEquation] = useState("");
     const [area, setArea] = useState(0);
     const [XL, setXL] = useState(""); //a
     const [XR, setXR] = useState(""); //b
-    const [N, setN] = useState(""); //n
     const [solution,setSolution] = useState("");
 
-    const getEquationApi = async () => {
-        try {
-            const response = await fetch("http://localhost:5000/integrateData/random"); 
-            if (!response.ok) {
-                throw new Error("Network response was not ok");
-            }
-
-            const equationData = await response.json();  
-            console.log(equationData);
-            if (equationData) {
-                setEquation(equationData.fx);
-                setXL(parseFloat(equationData.a).toFixed(4));
-                setXR(parseFloat(equationData.b).toFixed(4));
-                setN(parseFloat(equationData.n));
-            } else {
-                console.error("No data received");
-            }
-        } catch (error) {
-            console.error("Failed to fetch equation data:", error);
-        }
-    };
-
-    const CalArea = (a, b, n) => {
-        //console.log(n);
-        const h = (b - a) / n;
+    const CalArea = (a, b) => {
+        const h = b-a;
         const fa = evaluate(Equation, { x: a });
         const fb = evaluate(Equation, { x: b });
-        
-        let sum_fx = 0;
-        for (let i = 1; i < n; i++) {
-            const xi = a + i * h;
-            sum_fx += evaluate(Equation, { x: xi });
-        }
-        // Composite trapezoidal integral
-        let integrateArea = (h / 2) * (fa + fb + (2 * sum_fx));
+        let integrateArea = (h/2)*(fa+fb);
 
-        // Generating the LaTeX solution
         let solutionLatex = `\\displaystyle
         Evaluate \\ ; \\ I = \\int_{a}^{b} f(x) \\ dx \\ = \\int_{${a}}^{${b}} ${Equation} \\ dx \\\\
-        when \\ \\ x_0 = a \\ ,\\  x_n = b \\ ,\\  n = ${n} \\\\
-        From \\ \\ \\ I = \\frac{h}{2} \\left[f(x_0) + f(x_n) + 2 \\sum_{i=1}^{n-1} f(x_i) \\right] \\ ; \\ h = \\frac{b-a}{n} = ${h} \\\\
-        Trapezoidal \\ Integral \\ ; I = \\frac{${h}}{2} \\left[(${fa}) + (${fb}) + (${sum_fx*2})\\right] = ${integrateArea}
+        when \\ \\ x_0 = a \\ ,\\  x_1 = b \\\\
+        From \\ \\ \\ I = \\frac{h}{2} [f(x_0) + f(x_1)] \\ ; \\ h = b-a \\\\
+        I = \\frac{${h}}{2} [(${fa}) + (${fb})] = ${integrateArea}
         `;
 
 
@@ -83,18 +51,34 @@ const CompositeTrapezoidal = () => {
         setXR(event.target.value);
     };
 
-    const inputN = (event) => {
-        setN(event.target.value);
-    };
-
     const calculateRoot = () => {
         const xlnum = parseFloat(XL);
         const xrnum = parseFloat(XR);
-        const nnum = parseFloat(N)
-        CalArea(xlnum, xrnum, nnum);
+        CalArea(xlnum, xrnum);
     };
 
-    const getLineFunction = (XL,XR) => {
+    const getEquationApi = async () => {
+        try {
+            const response = await fetch("http://localhost:5000/integrateData/random"); 
+            if (!response.ok) {
+                throw new Error("Network response was not ok");
+            }
+
+            const equationData = await response.json();  
+            console.log(equationData);
+            if (equationData) {
+                setEquation(equationData.fx);
+                setXL(parseFloat(equationData.a).toFixed(4));
+                setXR(parseFloat(equationData.b).toFixed(4));
+            } else {
+                console.error("No data received");
+            }
+        } catch (error) {
+            console.error("Failed to fetch equation data:", error);
+        }
+    };
+
+    const getLineFunction = () => {
         let fXL,fXR;
         try {
             fXL = evaluate(Equation, { x: XL });
@@ -118,13 +102,8 @@ const CompositeTrapezoidal = () => {
 
     
     const EquationGraph = (XL,XR) => {
-        const xlNum = parseFloat(XL)-1;
-        const xrNum = parseFloat(XR)+1;
-
-        const xlNum2 = parseFloat(XL);
-        const xrNum2 = parseFloat(XR);
-
-        const Nnum = parseFloat(N)
+        const xlNum = parseFloat(XL) - 1;
+        const xrNum = parseFloat(XR) + 1;
 
         const stepSize = (xrNum - xlNum) / 100;  
         const xValues = Array.from({ length: 100 }, (_, i) => xlNum + (i * stepSize)); 
@@ -137,36 +116,22 @@ const CompositeTrapezoidal = () => {
             }
         });
 
-
-        let slopeEquation = [];
-        let segmentAmount = (xrNum2-xlNum2)/Nnum;
-        for(let i = xlNum2; i < xrNum2 ;i+=segmentAmount){
-            slopeEquation.push({
-                a: i, 
-                b: Math.min(i + segmentAmount, xrNum2), //cap at xrNum2
-                equation: getLineFunction(i, i+segmentAmount)  
-            });
-        }
+        let slopeEquation = getLineFunction();
         //console.log(slopeEquation);
-
-        const stepSize2 = (xrNum2 - xlNum2) / 100;
-        const areaX = Array.from({ length: 101 }, (_, i) => xlNum2 + (i * stepSize2));
+        const realXL = parseFloat(XL);
+        const stepSize2 = (XR - XL) / 100;
+        const areaX = Array.from({ length: 101 }, (_, i) => realXL + i * stepSize2);
         const areaY = areaX.map(x => {
             try {
-                const segment = slopeEquation.find(s => x >= s.a && x <= s.b);
-                console.log(segment);
-                if (segment) {
-                    return evaluate(segment.equation, { x });
-                }
-                return null;
+                return evaluate(slopeEquation, { x });
             } catch (error) {
                 console.error(`Error evaluating area equation at x=${x}:`, error);
                 return null;
             }
         });
 
-        //console.log('areaX:', areaX);
-        //console.log('areaY:', areaY);
+    console.log('areaX:', areaX);
+    console.log('areaY:', areaY);
 
         return (
             <Plot
@@ -203,77 +168,77 @@ const CompositeTrapezoidal = () => {
                         title: 'f(x)',
                         rangemode: 'tozero',
                     },
-                    shapes: slopeEquation.flatMap(segment => {
-                        const { a, b, equation } = segment;
-        
-                        return [
-                            // Vertical line at 'a'
-                            {
-                                type: 'line',
-                                x0: a,
-                                x1: a,
-                                y0: 0,
-                                y1: (() => {
-                                    try {
-                                        return evaluate(equation, { x: a });
-                                    } catch (error) {
-                                        return null;
-                                    }
-                                })(),
-                                line: {
-                                    color: '#117554',
-                                    width: 1,
-                                    dash: 'dot',
-                                },
+                    shapes: [
+                        // Vertical line at a 
+                        {
+                            type: 'line',
+                            x0: XL, 
+                            x1: XL, 
+                            y0: 0,
+                            y1: (() => {
+                                try {
+                                    return evaluate(Equation, { x: XL }); 
+                                } catch (error) {
+                                    return null; 
+                                }
+                            })(),
+                            line: {
+                                color: '#117554',
+                                width: 2,
+                                dash: 'dot',
                             },
-                            // Vertical line at 'b'
-                            {
-                                type: 'line',
-                                x0: b,
-                                x1: b,
-                                y0: 0,
-                                y1: (() => {
-                                    try {
-                                        return evaluate(equation, { x: b });
-                                    } catch (error) {
-                                        return null;
-                                    }
-                                })(),
-                                line: {
-                                    color: '#117554',
-                                    width: 1,
-                                    dash: 'dot',
-                                },
+                        },
+                        // Vertical line at b
+                        {
+                            type: 'line',
+                            x0: XR, 
+                            x1: XR, 
+                            y0: 0,
+                            y1: (() => {
+                                try {
+                                    return evaluate(Equation, { x: XR }); 
+                                } catch (error) {
+                                    return null; 
+                                }
+                            })(),
+                            line: {
+                                color: '#117554',
+                                width: 2,
+                                dash: 'dot',
                             },
-                            // Line connecting f(a) to f(b)
-                            {
-                                type: 'line',
-                                x0: a,
-                                x1: b,
-                                y0: (() => {
-                                    try {
-                                        return evaluate(equation, { x: a });
-                                    } catch (error) {
-                                        return null;
-                                    }
-                                })(),
-                                y1: (() => {
-                                    try {
-                                        return evaluate(equation, { x: b });
-                                    } catch (error) {
-                                        return null;
-                                    }
-                                })(),
-                                line: {
-                                    color: '#117554',
-                                    width: 1,
-                                    dash: 'dot',
-                                },
+                        },
+                        // Vertical line from f(a) to f(b)
+                        {
+                            type: 'line',
+                            x0: XL, 
+                            x1: XR, 
+                            y0: (() => {
+                                try {
+                                    return evaluate(Equation, { x: XL }); 
+                                } catch (error) {
+                                    return null; 
+                                }
+                            })(),
+                            y1: (() => {
+                                try {
+                                    return evaluate(Equation, { x: XR }); 
+                                } catch (error) {
+                                    return null; 
+                                }
+                            })(),
+                            line: {
+                                color: '#117554',
+                                width: 2,
+                                dash: 'dot',
                             },
-                        ];
-                    }),
+                        },
+                        
+                    ],
                     
-                }} 
+                }}
+                
+                
+            
             />
         );
     };
@@ -281,11 +246,11 @@ const CompositeTrapezoidal = () => {
     return (
         <>
             <NavigationBar />
-            <div className="outer-container">
-                <h1 className='title'>Composite Trapezoidal Rule</h1>
+            <div className="outer-container" >
+                <h1 className='title'>Trapezoidal Rule</h1>
                 <Row>
                     <Col md={3} className='left-column'>
-                        <div className="form-container">
+                        <div className="form-container" >
                             <Form>
                                 <Form.Group className="mb-3">
                                     <Form.Label>Input Equation f(x)</Form.Label>
@@ -301,10 +266,6 @@ const CompositeTrapezoidal = () => {
                                 <Form.Group className="mb-3">
                                     <Form.Label>Input b (right)</Form.Label>
                                     <Form.Control type="number" value={XR} id="XR" onChange={inputXR} style={{ width: '50%' }} className="custom-placeholder"/>
-                                </Form.Group>
-                                <Form.Group className="mb-3">
-                                    <Form.Label>Input n</Form.Label>
-                                    <Form.Control type="number" value={N} id="N" onChange={inputN} style={{ width: '50%' }} className="custom-placeholder"/>
                                 </Form.Group>
                                 <Button variant="dark" onClick={getEquationApi} className="centered-button" style={{ width: '50%' }}>
                                     Get Equation
@@ -342,4 +303,4 @@ const CompositeTrapezoidal = () => {
     );
 };
 
-export default CompositeTrapezoidal;
+export default Trapezoidal;

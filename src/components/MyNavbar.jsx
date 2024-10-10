@@ -51,9 +51,7 @@ function NavigationBar() {
 
                 <NavDropdown title="Integration" id="basic-nav-dropdown" className='dropdown-title'>
                   <NavDropdown.Item as={Link} to="/trapezoidal-rule">Trapezoidal Rule</NavDropdown.Item>
-                  <NavDropdown.Item as={Link} to="/composite-trapezoidal">Composite Trapezoidal Rule</NavDropdown.Item>
                   <NavDropdown.Item as={Link} to="/simpson-rule">Simpson Rule</NavDropdown.Item>
-                  <NavDropdown.Item as={Link} to="/composite-simpson">Composite Simpson Rule</NavDropdown.Item>
                 </NavDropdown>
 
                 <NavDropdown title="Differentiation" id="basic-nav-dropdown" className='dropdown-title'>
