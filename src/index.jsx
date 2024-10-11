@@ -30,6 +30,7 @@ import MultipleLinearRegression from './components/extrapolation/multipleLinearR
 import PolynomialRegression from './components/extrapolation/polynomialRegression';
 import Trapezoidal from './components/integration/trapezoidal';
 import Simpson from './components/integration/simpson';
+import NumericalDifferentiation from './components/differentiation/numerDiff';
 
 const router = createBrowserRouter([
   {
@@ -149,9 +150,13 @@ const router = createBrowserRouter([
     path: "/simpson-rule",
     element: <Simpson />
   }
+  ,
+  {
+    path: "/numerical-differentiation",
+    element: <NumericalDifferentiation />
+  }
  
-  
-  
+
 ])
 
 const root = ReactDOM.createRoot(document.getElementById('root'));

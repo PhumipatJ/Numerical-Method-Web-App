@@ -184,7 +184,6 @@ const BisectionMethods = () => {
                 }}
 
                 layout={{
-                    title: 'Equation Graph',
                     xaxis: {
                         title: 'x',
                     },

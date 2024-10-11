@@ -180,7 +180,6 @@ const FalsePositionMethods = () => {
                 }}
 
                 layout={{
-                    title: 'Equation Graph',
                     xaxis: {
                         title: 'x',
                     },

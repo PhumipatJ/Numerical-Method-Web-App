@@ -208,7 +208,6 @@ const GraphicalMethods = () => {
                 }}
 
                 layout={{
-                    title: 'Equation Graph',
                     xaxis: {
                         title: 'x',
                     },

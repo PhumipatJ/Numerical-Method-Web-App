@@ -176,7 +176,6 @@ const NewtonRaphsonMethods = () => {
                 }}
 
                 layout={{
-                    title: 'Equation Graph',
                     xaxis: {
                         title: 'x',
                     },

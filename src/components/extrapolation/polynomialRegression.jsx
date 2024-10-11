@@ -370,7 +370,6 @@ const EquationGraph = () => {
             }}
 
             layout={{
-                title: 'Equation Graph',
                 xaxis: {
                     title: 'x',
                 },

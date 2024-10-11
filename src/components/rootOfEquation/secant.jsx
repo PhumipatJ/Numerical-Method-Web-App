@@ -194,7 +194,6 @@ const SecantMethods = () => {
                 }}
 
                 layout={{
-                    title: 'Equation Graph',
                     xaxis: {
                         title: 'x',
                     },

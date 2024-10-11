@@ -57,6 +57,7 @@ function Home() {
       <div className="item">
         <h3 className="topic">Differentiation</h3>
         <p><Link to="/numerical-differentiation" className="link">Numerical Differentiation</Link></p>
+        <p><Link to="/accurate-numerical-differentiation" className="link">Accurate Numerical Differentiation</Link></p>
       </div>
     </div>
 

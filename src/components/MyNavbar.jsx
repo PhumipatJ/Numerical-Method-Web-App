@@ -56,6 +56,7 @@ function NavigationBar() {
 
                 <NavDropdown title="Differentiation" id="basic-nav-dropdown" className='dropdown-title'>
                   <NavDropdown.Item as={Link} to="/numerical-differentiation">Numerical Differentiation</NavDropdown.Item>
+                  <NavDropdown.Item as={Link} to="/accurate-numerical-differentiation">Accurate Numerical Differentiation</NavDropdown.Item>
                 </NavDropdown>
 
                 </Nav>
