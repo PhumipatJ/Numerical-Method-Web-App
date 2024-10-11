@@ -1,5 +1,3 @@
-version: '3.8'
-
 services:
   frontend:
     build:
@@ -9,26 +7,6 @@ services:
       - "3000:3000"
     volumes:
       - ./src:/app/src
-    environment:
-      - REACT_APP_API_URL=http://backend:5000
-    depends_on:
-      - backend
-
-  backend:
-    build:
-      context: .
-      dockerfile: backend/Dockerfile
-    ports:
-      - "5000:5000"
-    volumes:
-      - ./backend:/app
-    environment:
-      - DB_USER=phumipat33628 
-      - DB_HOST=dpg-cs1cqslds78s73b5glh0-a.singapore-postgres.render.com
-      - DB_NAME=numerical_method
-      - DB_PASSWORD=ehUNfB7RQ1YcI5dUFzwbRb2jgx3HCkuk
-      - DB_PORT=5432
-      - DB_SSL=true
 
 volumes:
   node_modules:
