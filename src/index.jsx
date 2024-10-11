@@ -31,6 +31,7 @@ import PolynomialRegression from './components/extrapolation/polynomialRegressio
 import Trapezoidal from './components/integration/trapezoidal';
 import Simpson from './components/integration/simpson';
 import NumericalDifferentiation from './components/differentiation/numerDiff';
+import AccurateNumericalDifferentiation from './components/differentiation/accurateNumerDiff';
 
 const router = createBrowserRouter([
   {
@@ -155,8 +156,12 @@ const router = createBrowserRouter([
     path: "/numerical-differentiation",
     element: <NumericalDifferentiation />
   }
+  ,
+  {
+    path: "/accurate-numerical-differentiation",
+    element: <AccurateNumericalDifferentiation />
+  }
  
-
 ])
 
 const root = ReactDOM.createRoot(document.getElementById('root'));

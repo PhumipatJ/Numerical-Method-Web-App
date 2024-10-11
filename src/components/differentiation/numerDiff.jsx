@@ -37,10 +37,6 @@ const NumericalDifferentiation = () => {
         let fxip2 = f(x+(2*h));
         let fxip1 = f(x+(1*h));
         let fxi = f(x);
-        let fxim1 = f(x-(1*h));
-        let fxim2 = f(x-(2*h));
-        let fxim3 = f(x-(3*h));
-        let fxim4 = f(x-(4*h));
 
         let result;
         let formulaLatex = ``;
@@ -83,10 +79,6 @@ const NumericalDifferentiation = () => {
     }
 
     const backwardCalculate = (x, h) => {
-        let fxip4 = f(x+(4*h));
-        let fxip3 = f(x+(3*h));
-        let fxip2 = f(x+(2*h));
-        let fxip1 = f(x+(1*h));
         let fxi = f(x);
         let fxim1 = f(x-(1*h));
         let fxim2 = f(x-(2*h));
@@ -133,15 +125,11 @@ const NumericalDifferentiation = () => {
     }
 
     const centerCalculate = (x, h) => {
-        let fxip4 = f(x+(4*h));
-        let fxip3 = f(x+(3*h));
         let fxip2 = f(x+(2*h));
         let fxip1 = f(x+(1*h));
         let fxi = f(x);
         let fxim1 = f(x-(1*h));
         let fxim2 = f(x-(2*h));
-        let fxim3 = f(x-(3*h));
-        let fxim4 = f(x-(4*h));
 
         let result;
         let formulaLatex = ``;
