@@ -290,7 +290,7 @@ const AccurateNumericalDifferentiation = () => {
 
     const getEquationApi = async () => {
         try {
-            const response = await fetch("https://pj-numer-api.onrender.com/rootOfEquationData/filter?data_id=1"); 
+            const response = await fetch("https://pj-numer-api.onrender.com//differentiateData/random"); 
             if (!response.ok) {
                 throw new Error("Network response was not ok");
             }
@@ -299,8 +299,8 @@ const AccurateNumericalDifferentiation = () => {
             //console.log(equationData);
             if (equationData) {
                 setEquation(equationData.fx);
-                setX(parseFloat(equationData.xl).toFixed(4));
-                setH(parseFloat(equationData.xr).toFixed(4));
+                setX(parseFloat(equationData.x).toFixed(4));
+                setH(parseFloat(equationData.h).toFixed(4));
             } else {
                 console.error("No data received");
             }
