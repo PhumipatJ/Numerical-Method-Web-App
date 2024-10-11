@@ -3,7 +3,7 @@ CREATE TABLE differentiate_data (
     data_id INTEGER,
     fx TEXT NOT NULL,
     x FLOAT,
-    h FLOAT,
+    h FLOAT
 );
 
 INSERT INTO differentiate_data (id, data_id, fx, x, h) 

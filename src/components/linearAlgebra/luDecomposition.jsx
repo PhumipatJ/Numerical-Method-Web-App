@@ -59,7 +59,7 @@ const LU = () => {
 
     const getEquationApi = async () => {
         try {
-            const response = await fetch(`https://numerical-method-web-app.onrender.com/linearAlgebraData/filter?data_id=1&dimension=${Dimension}`);
+            const response = await fetch(`https://pj-numer-api.onrender.com/linearAlgebraData/filter?data_id=1&dimension=${Dimension}`);
             if (!response.ok) {
                 throw new Error("Network response was not ok");
             }

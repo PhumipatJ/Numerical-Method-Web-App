@@ -21,7 +21,7 @@ const Simpson = () => {
 
     const getEquationApi = async () => {
         try {
-            const response = await fetch("https://numerical-method-web-app.onrender.com/integrateData/random"); 
+            const response = await fetch("https://pj-numer-api.onrender.com/integrateData/random"); 
             if (!response.ok) {
                 throw new Error("Network response was not ok");
             }

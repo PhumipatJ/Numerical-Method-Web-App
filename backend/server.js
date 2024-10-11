@@ -5,7 +5,7 @@ const { Client } = require('pg');
 const cors = require('cors');
 
 const app = express();
-const port = process.env.PORT || 10000; 
+const port = process.env.PORT || 5000; 
 
 app.use(cors()); 
 app.use(express.json()); 
@@ -34,7 +34,7 @@ const swaggerOptions = {
 };
 
 const swaggerDocs = swaggerJsdoc(swaggerOptions);
-app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocs));
+app.use('/', swaggerUi.serve, swaggerUi.setup(swaggerDocs));
 
 const db = new Client({
   user: process.env.DB_USER || "phumipat33628",
@@ -601,6 +601,6 @@ app.get("/integrateData/random", (req, res) => {
 
 
 
-app.listen(port,'0.0.0.0', () => {
+app.listen(port, () => {
   console.log(`Successfully started server on port ${port}.`);
 });
