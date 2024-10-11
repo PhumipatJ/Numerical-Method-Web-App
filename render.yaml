@@ -1,0 +1,9 @@
+services:
+  - type: web
+    name: pj-numer
+    env: static
+    buildCommand: npm run build
+    publishDirectory: build
+    routes:
+      - src: /(.*)
+        dest: /index.html
